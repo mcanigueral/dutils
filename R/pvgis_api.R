@@ -1,6 +1,7 @@
 # Solar from PVGIS --------------------------------------------------------
 
 #' Get TMY from PVGIS given the latitude and longitude coordinates.
+#'
 #' For more information visit https://ec.europa.eu/jrc/en/pvgis
 #'
 #' @param lat numeric, latitude coordinate
@@ -26,7 +27,8 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 }
 
 #' Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.
-#' For more information visit https://ec.europa.eu/jrc/en/pvgis
+#'
+#' For more information visit https://ec.europa.eu/jrc/en/pvgis.
 #' For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive
 #'
 #' @param year integer, year for the returned time-series data frame
@@ -85,7 +87,8 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 
 
 #' Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.
-#' For more information visit https://ec.europa.eu/jrc/en/pvgis
+#'
+#' For more information visit https://ec.europa.eu/jrc/en/pvgis.
 #' For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive
 #'
 #' @param year integer, year for the returned time-series data frame
