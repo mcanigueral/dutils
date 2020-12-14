@@ -76,7 +76,7 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 
   pv_tmy <- pmap_dfr(
     tmy,
-    ~ filter(.data$timeseries, lubridate::month(.data$datetime) == ..1, lubridate::year(.data$datetime) == ..2)
+    ~ filter(timeseries, lubridate::month(.data$datetime) == ..1, lubridate::year(.data$datetime) == ..2)
   )
   lubridate::year(pv_tmy$datetime) <- year
 
