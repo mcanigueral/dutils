@@ -2,9 +2,7 @@
 % Please edit documentation in R/pvgis_api.R
 \name{get_pv_timeseries}
 \alias{get_pv_timeseries}
-\title{Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.
-For more information visit https://ec.europa.eu/jrc/en/pvgis
-For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive}
+\title{Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.}
 \usage{
 get_pv_timeseries(
   year = 2021,
@@ -38,7 +36,6 @@ get_pv_timeseries(
 tibble
 }
 \description{
-Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.
-For more information visit https://ec.europa.eu/jrc/en/pvgis
+For more information visit https://ec.europa.eu/jrc/en/pvgis.
 For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive
 }

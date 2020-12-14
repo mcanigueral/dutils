@@ -2,8 +2,7 @@
 % Please edit documentation in R/pvgis_api.R
 \name{get_tmy}
 \alias{get_tmy}
-\title{Get TMY from PVGIS given the latitude and longitude coordinates.
-For more information visit https://ec.europa.eu/jrc/en/pvgis}
+\title{Get TMY from PVGIS given the latitude and longitude coordinates.}
 \usage{
 get_tmy(lat = 52.37, lon = 4.908)
 }
@@ -16,6 +15,5 @@ get_tmy(lat = 52.37, lon = 4.908)
 tibble
 }
 \description{
-Get TMY from PVGIS given the latitude and longitude coordinates.
 For more information visit https://ec.europa.eu/jrc/en/pvgis
 }

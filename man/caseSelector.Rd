@@ -13,9 +13,9 @@ caseSelector(id, df1, df2, plot_func, plot_conf, ...)
 
 \item{df2}{data.frame or tibble, data of case 2 being \code{datetime} the first column}
 
-\item{plot_func}{function to plot the dygraph output, being the first parameter the configuration tibble}
+\item{plot_func}{function to plot the dygraph output, with same parameters as \code{dutils::plot_components} function}
 
-\item{plot_conf}{tibble of the plot configuration}
+\item{plot_conf}{tibble of the plot configuration to pass to \code{dutils::plot_components} function}
 
 \item{...}{extra parameters passed to dyOptions}
 }

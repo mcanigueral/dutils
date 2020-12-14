@@ -27,8 +27,8 @@ caseSelectorUI <- function(id, tabs, height) {
 #' @param id character, module ID
 #' @param df1 data.frame or tibble, data of case 1 being `datetime` the first column
 #' @param df2 data.frame or tibble, data of case 2 being `datetime` the first column
-#' @param plot_func function to plot the dygraph output, being the first parameter the configuration tibble
-#' @param plot_conf tibble of the plot configuration
+#' @param plot_func function to plot the dygraph output, with same parameters as `dutils::plot_components` function
+#' @param plot_conf tibble of the plot configuration to pass to `dutils::plot_components` function
 #' @param ... extra parameters passed to dyOptions
 #'
 #' @return reactive `case` module input
@@ -62,6 +62,37 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
   )
 }
 
+
+
+#' Function to plot components according to a configuration table
+#'
+#' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
+#' @param plot_conf tibble of the plot configuration with columns `variable`, `label`, `color`, `fill` and `width` to pass to dygraph.
+#' @param ylab character, label of y axis
+#' @param ... extra arguments to pass to `dygraphs::dyOptions` function
+#'
+#' @return dygraphs plot
+#' @export
+#'
+#' @importFrom dplyr %>%
+#' @importFrom dygraphs dygraph dySeries dyLegend dyOptions dyCSS
+#' @importFrom purrr transpose
+#'
+plot_components <- function(df, plot_conf, ylab = "kW", ...) {
+  dyplot <- df %>% df_to_ts() %>% dygraph(group = "a", ylab = ylab)
+  for (component in transpose(plot_conf)) {
+    if (component$variable %in% names(df)) {
+      dyplot <- dySeries(dyplot, component$variable, component$label, component$color,
+                         fillGraph = component$fill, strokeWidth = component$width)
+    }
+  }
+  dyplot %>%
+    dyLegend(show = "onmouseover") %>%
+    dyOptions(retainDateWindow = TRUE,
+              useDataTimezone = TRUE,
+              ...) %>%
+    dyCSS("www/style.css")
+}
 
 
 
