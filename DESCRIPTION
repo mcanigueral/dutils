@@ -20,4 +20,7 @@ Imports:
   purrr,
   xts,
   rlang,
-  httr
+  httr,
+  shiny,
+  shinyWidgets,
+  dygraphs
