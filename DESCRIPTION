@@ -1,0 +1,23 @@
+Package: dutils
+Title: Common tools for shiny dashboards dealing with time-series data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Marc",
+           family = "Cañigueral",
+           role = c("aut", "cre"),
+           email = "marc.canigueral@udg.edu",
+           comment = c(ORCID = "https://orcid.org/0000-0001-9724-5829"))
+Description: Common tools for shiny dashboards dealing with time-series data.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+  dplyr,
+  lubridate,
+  tidyr,
+  purrr,
+  xts,
+  rlang,
+  httr
