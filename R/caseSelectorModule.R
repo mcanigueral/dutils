@@ -7,6 +7,7 @@
 #' @param tabs character vector, tabs names
 #' @param height Dygraphs height. Must be a valid CSS unit (like "100%", "400px", "auto") or a number, which will be coerced to a string and have "px" appended.
 #'
+#' @return shiny UI tagList
 #' @export
 #'
 #' @importFrom shiny NS tags
