@@ -147,6 +147,7 @@ decrease_resolution <- function(df, resolution_mins, value = c('average', 'first
 #' @param dttm datetime vector
 #'
 #' @return date vector
+#' @export
 #'
 #' @importFrom lubridate as_date year week
 get_week_from_datetime <- function(dttm) {
@@ -158,6 +159,7 @@ get_week_from_datetime <- function(dttm) {
 #' @param dttm datetime vector
 #'
 #' @return datetime vector
+#' @export
 #'
 #' @importFrom lubridate as_datetime hours hour
 #'
