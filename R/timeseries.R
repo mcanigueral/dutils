@@ -42,6 +42,25 @@ get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = FALSE, sta
   }
 }
 
+
+#' Convert date to datetime with a timezone
+#'
+#' Only valid for positive time zone differences (right part pf the mapamundi)
+#'
+#' @param date date
+#' @param tzone character, time zone
+#'
+#' @return datetime
+#' @export
+#'
+#' @importFrom lubridate floor_date with_tz
+#'
+date_to_datetime_with_tz <- function(date, tzone="UTC") {
+  # Not valid for negative tzones differences! (Left part of the mapamundi)
+  floor_date(with_tz(date, tzone), 'day')
+}
+
+
 #' Interpolate `n` values between two numeric values
 #'
 #' @param y1 first value
