@@ -1,5 +1,30 @@
 # Indicators -------------------------------------------------------------
 
+
+#' Get energy balance time-series
+#'
+#' Input data frame must have columns `consumption`, `production`.
+#' Output data frame has extra columns `balance`, `local`, `imported`, `exported`.
+#' Column `balance` is positive when there is more production than consumption.
+#'
+#' @param df
+#'
+#' @return tibble or data.frame
+#' @export
+#'
+#' @importFrom dplyr %>% mutate
+#' @importFrom rlang .data
+#'
+get_energy_balance <- function(df) {
+  df %>%
+    mutate(
+      balance = .data$production - .data$consumption,
+      local = ifelse(.data$balance > 0, .data$consumption, .data$production),
+      imported = .data$consumption - .data$local,
+      exported = .data$production - .data$local,
+    )
+}
+
 #' Obtain a list of energy indicators given the energy flows
 #'
 #' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production` and `kg_co2_kwh` (in this order)
@@ -19,10 +44,8 @@ get_energy_kpis <- function(df, kg_co2_kwh = 0.5) {
   resolution <- as.numeric(df$datetime[2] - df$datetime[1], unit='hours')
 
   df2 <- df %>%
+    get_energy_balance() %>%
     mutate(
-      local = ifelse(.data$production > .data$consumption, .data$consumption, .data$production),
-      imported = .data$consumption - .data$local,
-      exported = .data$production - .data$local,
       kg_co2 = .data$kg_co2_kwh*.data$imported*resolution,
     )
 
