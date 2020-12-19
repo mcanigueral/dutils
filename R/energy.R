@@ -7,7 +7,7 @@
 #' Output data frame has extra columns `balance`, `local`, `imported`, `exported`.
 #' Column `balance` is positive when there is more production than consumption.
 #'
-#' @param df
+#' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production`
 #'
 #' @return tibble or data.frame
 #' @export
@@ -31,7 +31,7 @@ get_energy_balance <- function(df) {
 
 #' Obtain a list of energy indicators given the energy flows
 #'
-#' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production` and `kg_co2_kwh` (in this order)
+#' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production` and `kg_co2_kwh`
 #' @param kg_co2_kwh factor of CO2 kg emissions per kWh of energy consumed from the distribution grid
 #'
 #' @return named list
@@ -76,7 +76,7 @@ get_energy_kpis <- function(df, kg_co2_kwh = 0.5) {
 
 #' For each month independently, obtain a list of energy indicators given the energy flows
 #'
-#' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production` and `kg_co2_kwh` (in this order)
+#' @param df data.frame or tibble, with columns `datetime`, `consumption`, `production` and `kg_co2_kwh`
 #'
 #' @return named list
 #' @export
