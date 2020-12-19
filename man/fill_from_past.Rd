@@ -11,11 +11,12 @@ fill_from_past(tbl, colnames, back = 24)
 
 \item{colnames}{character or vector of characters, column names with NA values}
 
-\item{back}{integer, number of positions (rows) to go back and get the filling value}
+\item{back}{integer, number of indices (rows) to go back and get the filling value}
 }
 \value{
 tibble or data.frame
 }
 \description{
-Fill from past values
+If back index ( NA index - \code{back}) is lower than zero then the it is filled with the first value of the data frame.
+If the value in the back index is also NA, it iterates backwards until finding a non-NA value.
 }
