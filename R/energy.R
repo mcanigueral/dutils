@@ -166,7 +166,7 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 #' @importFrom purrr pmap_dfr
 #'
 get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH", kWp=1, loss=14, tilt=37, azimuth=0) {
-  print(paste('Getting PV data with: tilt =', tilt, ', azimouth =', azimuth))
+  message(paste('Getting PV data with: tilt =', tilt, ', azimuth =', azimuth))
   url <- paste0(
     "https://re.jrc.ec.europa.eu/api/seriescalc?",
     "lat=", lat, "&",
