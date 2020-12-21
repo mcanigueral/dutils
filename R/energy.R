@@ -81,7 +81,7 @@ get_energy_kpis <- function(df, kg_co2_kwh = 0.5) {
 #' @return named list
 #' @export
 #'
-#' @importFrom dplyr %>% mutate group_by select everything
+#' @importFrom dplyr %>% mutate group_by
 #' @importFrom lubridate month
 #' @importFrom tidyr nest
 #' @importFrom purrr map_dfr
@@ -92,9 +92,11 @@ get_monthly_energy_kpis <- function(df) {
     mutate(month = month(.data$datetime)) %>%
     group_by(.data$month) %>%
     nest()
-  map_dfr(d_nest$data, ~ get_energy_kpis(.x)) %>%
-    mutate(month = d_nest$month) %>%
-    select(.data$month, everything())
+  map_dfr(
+    set_names(d_nest$data, d_nest$month),
+    ~ get_energy_kpis(.x),
+    .id = 'month'
+  )
 }
 
 
