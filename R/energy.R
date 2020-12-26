@@ -213,9 +213,8 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 #' @param lat numeric, latitude coordinate
 #' @param lon numeric, longitude coordinate
 #' @param database character, PVGIS database
-#' @param kWp numeric, PV installation kWp
 #' @param loss numeric, PV installation loss
-#' @param orientation_tbl tibble, with columns `varname`, `tilt` and `azimouth`
+#' @param panels_tbl tibble, with columns `varname`, `tilt`, `azimouth` and `kWp`
 #'
 #' @return tibble
 #' @export
@@ -225,10 +224,10 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 #' @importFrom purrr pmap_dfc
 #' @importFrom rlang .data
 #'
-get_multiple_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH", kWp=1, loss=14, orientation_tbl) {
+get_multiple_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH", loss=14, panels_tbl) {
   solar_pvgis <- pmap_dfc(
-    orientation_tbl,
-    ~ get_pv_timeseries(year = year, lat=lat, lon=lon, kWp=kWp, loss=loss, tilt=..2, azimuth=..3) %>%
+    panels_tbl,
+    ~ get_pv_timeseries(year = year, lat=lat, lon=lon, kWp=..4, loss=loss, tilt=..2, azimuth=..3) %>%
       select(!!sym(..1) := .data$kW)
   ) %>%
     mutate(datetime = get_datetime_seq(year, "UTC", 60, fullyear=T)) %>%

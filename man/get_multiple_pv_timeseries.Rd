@@ -9,9 +9,8 @@ get_multiple_pv_timeseries(
   lat = 52.37,
   lon = 4.908,
   database = "PVGIS-SARAH",
-  kWp = 1,
   loss = 14,
-  orientation_tbl
+  panels_tbl
 )
 }
 \arguments{
@@ -23,11 +22,9 @@ get_multiple_pv_timeseries(
 
 \item{database}{character, PVGIS database}
 
-\item{kWp}{numeric, PV installation kWp}
-
 \item{loss}{numeric, PV installation loss}
 
-\item{orientation_tbl}{tibble, with columns \code{varname}, \code{tilt} and \code{azimouth}}
+\item{panels_tbl}{tibble, with columns \code{varname}, \code{tilt}, \code{azimouth} and \code{kWp}}
 }
 \value{
 tibble
