@@ -4,12 +4,12 @@
 \alias{format_dygraph}
 \title{Format Dygraphs plot with CSS file and extra options}
 \usage{
-format_dygraph(dyplot, css_file = "www/style.css", ...)
+format_dygraph(dyplot, css_file = NULL, ...)
 }
 \arguments{
 \item{dyplot}{dygraph object}
 
-\item{css_file}{character path to a CSS file to format dygraph plot. If NULL, no CSS formating is applied to dygraph.}
+\item{css_file}{character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph.}
 
 \item{...}{extra arguments to pass to \code{dygraphs::dyOptions} function}
 }
@@ -20,5 +20,5 @@ dygraphs plot
 Format Dygraphs plot with CSS file and extra options
 }
 \details{
-Atention! By default this function needs a CSS file in WWW folder.
+Atention! By default this function applies custom CSS file.
 }
