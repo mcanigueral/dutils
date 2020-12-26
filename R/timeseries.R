@@ -205,3 +205,22 @@ get_week_total <- function(df) {
     summarise_all(sum)
 }
 
+
+#' Aggregate multiple timeseries columns to a single one
+#'
+#' The first column `datetime` will be kept.
+#'
+#' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
+#' @param varname character, name of the aggregation column
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr tibble sym
+#'
+aggregate_timeseries <- function(df, varname) {
+  tbl <- tibble(datetime = df[1])
+  tbl[[varname]] <- rowSums(df[-1])
+  return( tbl )
+}
+
