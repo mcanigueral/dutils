@@ -45,6 +45,31 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 }
 
 
+#' Plot a timeseries data.frame in a Dygraphs HTML plot
+#'
+#' First column of the data.frame must be a datetime or date column.
+#' The rest of columns must be numeric of the same units.
+#'
+#' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
+#' @param format logical, whether to format dygraph with custom CSS file
+#' @param css_file character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph. Only used when `format` is `TRUE`.
+#' @param ... extra arguments to pass to `dygraphs::dyOptions` function. Only used when `format` is `TRUE`
+#'
+#' @return dygraph
+#' @export
+#'
+#' @importFrom dygraphs dygraph
+#'
+dyplot <- function(df, format = TRUE, css_file=NULL, ...) {
+  dyplot <- dygraph(df_to_ts(df))
+  if (!format) {
+    return( dyplot )
+  } else {
+    return( format_dygraph(dyplot, css_file, ...) )
+  }
+}
+
+
 
 #' Function to plot components according to a configuration table
 #'
