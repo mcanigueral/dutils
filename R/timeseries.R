@@ -216,10 +216,8 @@ get_week_total <- function(df) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr tibble sym
-#'
 aggregate_timeseries <- function(df, varname) {
-  tbl <- tibble(datetime = df[1])
+  tbl <- df[1]
   tbl[[varname]] <- rowSums(df[-1])
   return( tbl )
 }

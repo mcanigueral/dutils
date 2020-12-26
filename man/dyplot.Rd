@@ -4,10 +4,24 @@
 \alias{dyplot}
 \title{Plot a timeseries data.frame in a Dygraphs HTML plot}
 \usage{
-dyplot(df, format = TRUE, css_file = NULL, ...)
+dyplot(
+  df,
+  xlab = NULL,
+  ylab = NULL,
+  group = NULL,
+  format = TRUE,
+  css_file = NULL,
+  ...
+)
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
+
+\item{xlab}{character, X axis label}
+
+\item{ylab}{character, Y axis label}
+
+\item{group}{character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.}
 
 \item{format}{logical, whether to format dygraph with custom CSS file}
 
