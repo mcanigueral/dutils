@@ -19,7 +19,8 @@ numericInputsUI <- function(id) {
 #' Server function of numericInput module
 #'
 #' @param id character, module ID
-#' @param inputs_tbl tibble, inputs characteristics
+#' @param inputs_conf tibble, numericInputs parameters table with columns
+#' `input` (numericInput ID), `label`, `value`, `min`, `max`, `step` and `show`
 #' @param sliders boolean, whether to use sliders or numeric inputs
 #' @param delay integer, number of milliseconds to delay an input change
 #'
@@ -29,7 +30,7 @@ numericInputsUI <- function(id) {
 #' @importFrom shiny moduleServer reactive debounce column sliderInput numericInput
 #' @importFrom purrr pmap map set_names
 #'
-numericInputsServer <- function(id, inputs_tbl, sliders = FALSE, delay=0) {
+numericInputsServer <- function(id, inputs_conf, sliders = FALSE, delay=0) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -38,14 +39,14 @@ numericInputsServer <- function(id, inputs_tbl, sliders = FALSE, delay=0) {
         ns <- session$ns
         inputFunc <- ifelse(sliders, sliderInput, numericInput)
 
-        if (round(12/sum(inputs_tbl[["show"]])) <= 2) {
+        if (round(12/sum(inputs_conf[["show"]])) <= 2) {
           columns_width <- 2
         } else {
           columns_width <- 3
         }
 
         pmap(
-          inputs_tbl[inputs_tbl[["show"]], ],
+          inputs_conf[inputs_conf[["show"]], ],
           ~ column(
             columns_width,
             inputFunc(
@@ -56,15 +57,15 @@ numericInputsServer <- function(id, inputs_tbl, sliders = FALSE, delay=0) {
       })
 
       # return(reactive(pmap(
-      #   inputs_tbl[c('input', 'value', 'show')],
+      #   inputs_conf[c('input', 'value', 'show')],
       #   ~ reactive(get_input_valid_value(..1, ..2, ..3, input, delay))
       # )))
 
       inputs_list <- map(
-        set_names(inputs_tbl[["input"]], inputs_tbl[["input"]]),
+        set_names(inputs_conf[["input"]], inputs_conf[["input"]]),
         ~ reactive(input[[.x]]) %>% debounce(delay)
       )
-      return(reactive(get_inputs_valid_values(inputs_tbl, inputs_list)))
+      return(reactive(get_inputs_valid_values(inputs_conf, inputs_list)))
 
     })
 }
@@ -104,16 +105,17 @@ get_input_valid_value <- function (id, config_value, inputs_list) {
 
 #' Get numeric inputs values from numericInput module
 #'
-#' @param inputs_tbl data.frame or tibble, with inputs configuration
+#' @param inputs_conf tibble, numericInputs parameters table with columns
+#' `input` (numericInput ID), `label`, `value`, `min`, `max`, `step` and `show`
 #' @param inputs_list `input` object of the module
 #'
 #' @return named list with input values
 #'
 #' @importFrom purrr pmap
 #'
-get_inputs_valid_values <- function (inputs_tbl, inputs_list) {
-  values <- pmap(inputs_tbl, ~ get_input_valid_value(..1, ..3, inputs_list))
-  names(values) <- inputs_tbl[["input"]]
+get_inputs_valid_values <- function (inputs_conf, inputs_list) {
+  values <- pmap(inputs_conf, ~ get_input_valid_value(..1, ..3, inputs_list))
+  names(values) <- inputs_conf[["input"]]
   return(values)
 }
 

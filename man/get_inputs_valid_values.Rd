@@ -4,10 +4,11 @@
 \alias{get_inputs_valid_values}
 \title{Get numeric inputs values from numericInput module}
 \usage{
-get_inputs_valid_values(inputs_tbl, inputs_list)
+get_inputs_valid_values(inputs_conf, inputs_list)
 }
 \arguments{
-\item{inputs_tbl}{data.frame or tibble, with inputs configuration}
+\item{inputs_conf}{tibble, numericInputs parameters table with columns
+\code{input} (numericInput ID), \code{label}, \code{value}, \code{min}, \code{max}, \code{step} and \code{show}}
 
 \item{inputs_list}{\code{input} object of the module}
 }
