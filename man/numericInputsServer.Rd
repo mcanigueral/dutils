@@ -4,12 +4,14 @@
 \alias{numericInputsServer}
 \title{Server function of numericInput module}
 \usage{
-numericInputsServer(id, inputs_ids, delay = 0)
+numericInputsServer(id, inputs_tbl, sliders = FALSE, delay = 0)
 }
 \arguments{
 \item{id}{character, module ID}
 
-\item{inputs_ids}{character vector of inputs to get values from}
+\item{inputs_tbl}{tibble, inputs characteristics}
+
+\item{sliders}{boolean, whether to use sliders or numeric inputs}
 
 \item{delay}{integer, number of milliseconds to delay an input change}
 }

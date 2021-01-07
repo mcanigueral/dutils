@@ -4,14 +4,10 @@
 \alias{numericInputsUI}
 \title{UI function of numericInput module}
 \usage{
-numericInputsUI(id, inputs_tbl, sliders = FALSE)
+numericInputsUI(id)
 }
 \arguments{
 \item{id}{character, module ID}
-
-\item{inputs_tbl}{tibble, inputs characteristics}
-
-\item{sliders}{boolean, whether to use sliders or numeric inputs}
 }
 \value{
 shiny UI tagList
