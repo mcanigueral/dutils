@@ -6,6 +6,7 @@
 \usage{
 dyplot(
   df,
+  title = NULL,
   xlab = NULL,
   ylab = NULL,
   group = NULL,
@@ -17,9 +18,11 @@ dyplot(
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
 
-\item{xlab}{character, X axis label}
+\item{title}{character, title of the plot (accepts HTML code)}
 
-\item{ylab}{character, Y axis label}
+\item{xlab}{character, X axis label (accepts HTML code)}
+
+\item{ylab}{character, Y axis label (accepts HTML code)}
 
 \item{group}{character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.}
 

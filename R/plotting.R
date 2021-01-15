@@ -51,8 +51,9 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #' The rest of columns must be numeric of the same units.
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
-#' @param xlab character, X axis label
-#' @param ylab character, Y axis label
+#' @param title character, title of the plot (accepts HTML code)
+#' @param xlab character, X axis label (accepts HTML code)
+#' @param ylab character, Y axis label (accepts HTML code)
 #' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
 #' @param format logical, whether to format dygraph with custom CSS file
 #' @param css_file character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph. Only used when `format` is `TRUE`.
@@ -63,8 +64,8 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #'
 #' @importFrom dygraphs dygraph
 #'
-dyplot <- function(df, xlab = NULL, ylab = NULL, group = NULL, format = TRUE, css_file=NULL, ...) {
-  dyplot <- dygraph(df_to_ts(df), xlab = xlab, ylab = ylab, group = group)
+dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, format = TRUE, css_file=NULL, ...) {
+  dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group)
   if (!format) {
     return( dyplot )
   } else {

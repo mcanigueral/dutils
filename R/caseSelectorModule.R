@@ -42,7 +42,6 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
   moduleServer(
     id,
     function(input, output, session) {
-      req(df1(), df2(), plot_conf())
       output$graph <-
         renderDygraph({
           plot <- switch(
