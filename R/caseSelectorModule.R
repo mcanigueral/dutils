@@ -46,13 +46,13 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
         renderDygraph({
           case <- as.integer(input$case)
           if (case == 1) {
-            req(df1())
+            # req(df1())
             plot_data <- df1()
           } else if (case == 2) {
-            req(df2())
+            # req(df2())
             plot_data <- df2()
           } else {
-            req(df1(), df2())
+            # req(df1(), df2())
             plot_data <- tibble(
               datetime = df1()[[1]],
               case1 = rowSums(df1()[-1]),
