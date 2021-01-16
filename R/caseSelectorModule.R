@@ -34,7 +34,7 @@ caseSelectorUI <- function(id, tabs, height) {
 #' @return reactive `case` module input
 #' @export
 #'
-#' @importFrom shiny moduleServer reactive req
+#' @importFrom shiny moduleServer reactive
 #' @importFrom dygraphs renderDygraph
 #' @importFrom dplyr %>% tibble
 #'
@@ -46,13 +46,10 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
         renderDygraph({
           case <- as.integer(input$case)
           if (case == 1) {
-            # req(df1())
             plot_data <- df1()
           } else if (case == 2) {
-            # req(df2())
             plot_data <- df2()
           } else {
-            # req(df1(), df2())
             plot_data <- tibble(
               datetime = df1()[[1]],
               case1 = rowSums(df1()[-1]),
@@ -67,7 +64,7 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
           #     datetime = df1()[[1]],
           #     case1 = rowSums(df1()[-1]),
           #     case2 = rowSums(df2()[-1])
-          #   ) %>% plot_func(plot_conf())
+          #   ) %>% plot_func(plot_conf(), ...)
           # )
           plot_data %>% plot_func(plot_conf(), ...)
         })
