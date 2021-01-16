@@ -86,7 +86,6 @@ dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, for
 #' @return dygraphs plot
 #' @export
 #'
-#' @importFrom dplyr %>%
 #' @importFrom dygraphs dygraph dySeries
 #' @importFrom purrr transpose
 #'
@@ -94,8 +93,8 @@ dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, for
 #' Atention! By default this function applies custom CSS file.
 #'
 plot_components <- function(df, plot_conf, ylab = "kW", css_file = NULL, ...) {
-  print(df)
-  dyplot <- df %>% df_to_ts() %>% dygraph(group = "a", ylab = ylab)
+  ts <- df_to_ts(df)
+  dyplot <- dygraph(ts, group = "a", ylab = ylab)
   for (component in transpose(plot_conf)) {
     if (component$variable %in% names(df)) {
       dyplot <- dySeries(dyplot, component$variable, component$label, component$color,
