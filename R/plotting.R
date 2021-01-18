@@ -93,7 +93,7 @@ dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, for
 #' Atention! By default this function applies custom CSS file.
 #'
 plot_components <- function(df, plot_conf, ylab = "kW", css_file = NULL, ...) {
-  is.data.frame(df)
+  is.data.frame(df) # No avoid warning "restarting interrupted promise evaluation" in following functions
   ts <- df_to_ts(df)
   dyplot <- dygraph(ts, group = "a", ylab = ylab)
   for (component in transpose(plot_conf)) {

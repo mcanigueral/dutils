@@ -29,7 +29,7 @@ caseSelectorUI <- function(id, tabs, height) {
 #' @param df2 data.frame or tibble, data of case 2 being `datetime` the first column
 #' @param plot_func function to plot the dygraph output, with same parameters as `dutils::plot_components` function
 #' @param plot_conf tibble of the plot configuration to pass to `dutils::plot_components` function
-#' @param ... extra parameters passed to dyOptions
+#' @param ... extra parameters passed to dyOptions for `df1` and `df2` plots (not comparison plot)
 #'
 #' @return reactive `case` module input
 #' @export
@@ -44,29 +44,16 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
     function(input, output, session) {
       output$graph <-
         renderDygraph({
-          case <- as.integer(input$case)
-          if (case == 1) {
-            plot_data <- df1()
-          } else if (case == 2) {
-            plot_data <- df2()
-          } else {
-            plot_data <- tibble(
+          switch(
+            as.integer(input$case),
+            df1() %>% plot_func(plot_conf(), ...),
+            df2() %>% plot_func(plot_conf(), ...),
+            tibble(
               datetime = df1()[[1]],
               case1 = rowSums(df1()[-1]),
               case2 = rowSums(df2()[-1])
-            )
-          }
-          # plot <- switch(
-          #   as.integer(input$case),
-          #   df1() %>% plot_func(plot_conf(), ...),
-          #   df2() %>% plot_func(plot_conf(), ...),
-          #   tibble(
-          #     datetime = df1()[[1]],
-          #     case1 = rowSums(df1()[-1]),
-          #     case2 = rowSums(df2()[-1])
-          #   ) %>% plot_func(plot_conf(), ...)
-          # )
-          plot_data %>% plot_func(plot_conf(), ...)
+            ) %>% plot_func(plot_conf())
+          )
         })
 
       return(reactive(input$case))

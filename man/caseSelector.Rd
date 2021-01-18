@@ -17,7 +17,7 @@ caseSelector(id, df1, df2, plot_func, plot_conf, ...)
 
 \item{plot_conf}{tibble of the plot configuration to pass to \code{dutils::plot_components} function}
 
-\item{...}{extra parameters passed to dyOptions}
+\item{...}{extra parameters passed to dyOptions for \code{df1} and \code{df2} plots (not comparison plot)}
 }
 \value{
 reactive \code{case} module input
