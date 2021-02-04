@@ -61,6 +61,46 @@ date_to_datetime_with_tz <- function(date, tzone="UTC") {
 }
 
 
+
+#' Fill NA values of a datetime sequence vector
+#'
+#' @param dttm datetime sequence vector
+#'
+#' @return filled datetime sequence vector
+#' @export
+#'
+#' @importFrom lubridate minutes
+#'
+fill_datetime <- function(dttm) {
+  # detect the time interval of the sequence
+  dttm_diff <- as.numeric(dttm - lag(dttm), units = 'mins')
+  time_interval_minutes <- as.integer(dttm_diff[which(!is.na(dttm_diff))[1]])
+
+  # find missing values
+  dttm_na_i <- which(is.na(dttm))
+
+  # fill missing values
+  while (sum(is.na(dttm)) > 0) {
+    for (i in dttm_na_i) {
+      last_i <- i - 1
+      next_i <- i + 1
+
+      if ((last_i %in% dttm_na_i) | (last_i < 1)) {
+        if ((next_i %in% dttm_na_i) | (next_i > length(dttm))) {
+          next
+        } else {
+          dttm[i] <- dttm[next_i] - minutes(time_interval_minutes)
+        }
+      } else {
+        dttm[i] <- dttm[last_i] + minutes(time_interval_minutes)
+      }
+    }
+  }
+
+  return(dttm)
+}
+
+
 #' Interpolate `n` values between two numeric values
 #'
 #' @param y1 first value
