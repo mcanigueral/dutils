@@ -219,7 +219,6 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 #' @return tibble
 #' @export
 #'
-#' @importFrom httr GET content
 #' @importFrom dplyr bind_rows select sym mutate %>% everything
 #' @importFrom purrr pmap_dfc
 #' @importFrom rlang .data

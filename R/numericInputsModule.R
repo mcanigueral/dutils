@@ -8,11 +8,9 @@
 #' @return shiny UI tagList
 #' @export
 #'
-#' @importFrom shiny NS uiOutput
-#'
 numericInputsUI <- function(id) {
-  ns <- NS(id)
-  uiOutput(ns('ui'))
+  ns <- shiny::NS(id)
+  shiny::uiOutput(ns('ui'))
 }
 
 
@@ -27,17 +25,16 @@ numericInputsUI <- function(id) {
 #' @return named list with reactive input values
 #' @export
 #'
-#' @importFrom shiny moduleServer reactive debounce column sliderInput numericInput
 #' @importFrom purrr pmap map set_names
 #'
 numericInputsServer <- function(id, inputs_conf, sliders = FALSE, delay=0) {
-  moduleServer(
+  shiny::moduleServer(
     id,
     function(input, output, session) {
 
-      output[['ui']] <- renderUI({
+      output[['ui']] <- shiny::renderUI({
         ns <- session$ns
-        inputFunc <- ifelse(sliders, sliderInput, numericInput)
+        inputFunc <- ifelse(sliders, shiny::sliderInput, shiny::numericInput)
 
         if (round(12/sum(inputs_conf[["show"]])) <= 2) {
           columns_width <- 2
@@ -47,7 +44,7 @@ numericInputsServer <- function(id, inputs_conf, sliders = FALSE, delay=0) {
 
         pmap(
           inputs_conf[inputs_conf[["show"]], ],
-          ~ column(
+          ~ shiny::column(
             columns_width,
             inputFunc(
               inputId = ns(..1), label = ..2, value = ..3, min = ..4, max = ..5, step = ..6
@@ -56,16 +53,11 @@ numericInputsServer <- function(id, inputs_conf, sliders = FALSE, delay=0) {
         )
       })
 
-      # return(reactive(pmap(
-      #   inputs_conf[c('input', 'value', 'show')],
-      #   ~ reactive(get_input_valid_value(..1, ..2, ..3, input, delay))
-      # )))
-
       inputs_list <- map(
         set_names(inputs_conf[["input"]], inputs_conf[["input"]]),
-        ~ reactive(input[[.x]]) %>% debounce(delay)
+        ~ shiny::reactive(input[[.x]]) %>% shiny::debounce(delay)
       )
-      return(reactive(get_inputs_valid_values(inputs_conf, inputs_list)))
+      return(shiny::reactive(get_inputs_valid_values(inputs_conf, inputs_list)))
 
     })
 }

@@ -8,12 +8,10 @@
 #' @return shiny UI tagList
 #' @export
 #'
-#' @importFrom shiny NS fluidRow column uiOutput
-#'
 kpisUI <- function(id) {
-  ns <- NS(id)
-  fluidRow(
-    column(12, uiOutput(ns('kpis')))
+  ns <- shiny::NS(id)
+  shiny::fluidRow(
+    shiny::column(12, shiny::uiOutput(ns('kpis')))
   )
 }
 
@@ -26,23 +24,21 @@ kpisUI <- function(id) {
 #'
 #' @export
 #'
-#' @importFrom shiny moduleServer renderUI column
-#' @importFrom shinydashboard renderInfoBox infoBox
 #' @importFrom purrr transpose map
 #'
 kpisServer <- function(id, kpis_df, kpis_values) {
-  moduleServer(
+  shiny::moduleServer(
     id,
     function(input, output, session) {
 
-      output[['kpis']] <- renderUI({
+      output[['kpis']] <- shiny::renderUI({
 
         val <- kpis_values()
         kpis_list <- transpose( kpis_df() )
 
         map(
           kpis_list,
-          ~ column(
+          ~ shiny::column(
             as.integer(.x[['width']]),
             # getInfoBox(
             #   title = .x[['title']],
@@ -51,8 +47,8 @@ kpisServer <- function(id, kpis_df, kpis_values) {
             #   icon = icon(.x[['icon']], class = .x[['icon-class']]),
             #   color = .x[['color']]
             # )
-            renderInfoBox({
-              infoBox(
+            shinydashboard::renderInfoBox({
+              shinydashboard::infoBox(
                 title = .x[['title']],
                 value = paste(round(val[[.x[['variable']]]]/.x[['division']], .x[['digits']]), .x[['units']]),
                 subtitle = eval(parse(text=.x[['subtitle']])),

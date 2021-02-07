@@ -18,10 +18,12 @@ Imports:
   lubridate,
   tidyr,
   purrr,
-  xts,
   rlang,
   httr,
+  xts,
+  dygraphs
+Suggests:
   shiny,
   shinyWidgets,
-  shinydashboard,
-  dygraphs
+  shinydashboard
+  

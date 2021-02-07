@@ -10,14 +10,12 @@
 #' @return shiny UI tagList
 #' @export
 #'
-#' @importFrom shiny NS tags
-#' @importFrom shinyWidgets radioGroupButtons
 #' @importFrom dygraphs dygraphOutput
 #'
 caseSelectorUI <- function(id, tabs, height) {
-  ns <- NS(id)
-  tags$div(
-    radioGroupButtons(ns("case"), NULL, tabs, justified = TRUE),
+  ns <- shiny::NS(id)
+  shiny::tags$div(
+    shinyWidgets::radioGroupButtons(ns("case"), NULL, tabs, justified = TRUE),
     dygraphOutput(ns("graph"), height = height)
   )
 }
@@ -34,12 +32,11 @@ caseSelectorUI <- function(id, tabs, height) {
 #' @return reactive `case` module input
 #' @export
 #'
-#' @importFrom shiny moduleServer reactive
 #' @importFrom dygraphs renderDygraph
 #' @importFrom dplyr %>% tibble
 #'
 caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
-  moduleServer(
+  shiny::moduleServer(
     id,
     function(input, output, session) {
       output$graph <-
@@ -56,7 +53,7 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
           )
         })
 
-      return(reactive(input$case))
+      return(shiny::reactive(input$case))
     }
   )
 }
