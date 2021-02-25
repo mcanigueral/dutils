@@ -57,6 +57,8 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
 #' @param format logical, whether to format dygraph with custom CSS file
 #' @param css_file character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph. Only used when `format` is `TRUE`.
+#' @param width Width in pixels (optional, defaults to automatic sizing)
+#' @param height Height in pixels (optional, defaults to automatic sizing)
 #' @param ... extra arguments to pass to `dygraphs::dyOptions` function. Only used when `format` is `TRUE`
 #'
 #' @return dygraph
@@ -64,8 +66,8 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #'
 #' @importFrom dygraphs dygraph
 #'
-dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, format = TRUE, css_file=NULL, ...) {
-  dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group)
+dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, format = TRUE, css_file=NULL, width = NULL, height = NULL, ...) {
+  dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height)
   if (!format) {
     return( dyplot )
   } else {

@@ -12,6 +12,8 @@ dyplot(
   group = NULL,
   format = TRUE,
   css_file = NULL,
+  width = NULL,
+  height = NULL,
   ...
 )
 }
@@ -29,6 +31,10 @@ dyplot(
 \item{format}{logical, whether to format dygraph with custom CSS file}
 
 \item{css_file}{character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph. Only used when \code{format} is \code{TRUE}.}
+
+\item{width}{Width in pixels (optional, defaults to automatic sizing)}
+
+\item{height}{Height in pixels (optional, defaults to automatic sizing)}
 
 \item{...}{extra arguments to pass to \code{dygraphs::dyOptions} function. Only used when \code{format} is \code{TRUE}}
 }
