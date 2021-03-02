@@ -20,10 +20,13 @@ get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone =
 
   time_range <- adapt_date_range(start_date, end_date)
 
-  pmap_dfr(
+  table <- pmap_dfr(
     time_range,
     ~ query_table(dynamodb_table, id, ..1, ..2)
-  )  %>%
+  )
+  print(table)
+  if (nrow(table) == 0) return( NULL )
+  table %>%
     select(.data$id, .data$timestamp, .data$data)  %>%
     adapt_table_format(tzone)
 }
