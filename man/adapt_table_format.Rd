@@ -7,7 +7,7 @@
 adapt_table_format(table, tzone = "Europe/Paris")
 }
 \arguments{
-\item{table}{boto3 DynamoDB table object}
+\item{table}{data.frame, response from DynamoDB query}
 
 \item{tzone}{character, time zone}
 }

@@ -87,7 +87,7 @@ adapt_date_range <- function(start_date, end_date) {
 
 #' From non-SQL DynamoDB table to spread tibble
 #'
-#' @param table boto3 DynamoDB table object
+#' @param table data.frame, response from DynamoDB query
 #' @param tzone character, time zone
 #'
 #' @return tibble
@@ -148,20 +148,38 @@ parse_python_object <- function(object) {
 
 
 # Wrap python functions ---------------------------------------------------
+pyenv <- new.env()
 
 query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
-  # reticulate::source_python(system.file("python/utils.py", package = 'evflex'), envir = pyenv)
-
-  python_path <- system.file("python", package = "dutils")
-  tools <- reticulate::import_from_path("dynamodb", path = python_path)
-  tools$utils$query_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
+  reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  pyenv$query_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
 }
 
 
+#' Put data frame to DynamoDB table
+#'
+#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param df data frame to put
+#'
+#' @export
+#'
+put_df_to_dynamodb <- function(dynamodb_table, df) {
+  reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  pyenv$put_df(dynamodb_table, df)
+}
 
 
-
-
+#' Delete data frame from DynamoDB table
+#'
+#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param df data frame to put
+#'
+#' @export
+#'
+delete_df_from_dynamodb <- function(dynamodb_table, df) {
+  reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  pyenv$delete_df(dynamodb_table, df)
+}
 
 
 
