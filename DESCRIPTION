@@ -21,8 +21,7 @@ Imports:
     rlang,
     httr,
     xts,
-    dygraphs,
-    tibble
+    dygraphs
 Suggests:
   shiny,
   shinyWidgets,

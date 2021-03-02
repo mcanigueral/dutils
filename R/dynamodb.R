@@ -110,20 +110,13 @@ adapt_table_format <- function(table, tzone = "Europe/Paris") {
 }
 
 spread_data_column <- function(table) {
-  dplyr::select(
-    dplyr::mutate(
-      table,
-      purrr::map_dfr(
-        rlang::.data$data,
-        ~ spread_data_item(.x)
-      )
-    ),
-    -'data'
-  )
+  table %>%
+    dplyr::mutate(purrr::map_dfr(.data$data, ~ spread_data_item(.x))) %>%
+    dplyr::select(-'data')
 }
 
 spread_data_item <- function(item) {
-  tibble::as_tibble_row(purrr::map(item, ~ parse_python_object(.x)))
+  dplyr::bind_cols(purrr::map(item, ~ parse_python_object(.x)))
 }
 
 
