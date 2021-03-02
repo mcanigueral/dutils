@@ -24,7 +24,6 @@ get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone =
     time_range,
     ~ query_table(dynamodb_table, id, ..1, ..2)
   )
-  print(table)
   if (nrow(table) == 0) return( NULL )
   table %>%
     select(.data$id, .data$timestamp, .data$data)  %>%
@@ -74,7 +73,7 @@ adapt_date_range <- function(start_date, end_date) {
   if (as.integer(end_date - start_date, units = 'days') > 30) {
     tibble(
       start.date = seq.POSIXt(start_date, end_date, by = '30 days'),
-      end.date = start_date + days(30),
+      end.date = start.date + days(30),
       start.timestamp = as.integer(.data$start.date)*1000,
       end.timestamp = as.integer(.data$end.date)*1000
     ) %>%
