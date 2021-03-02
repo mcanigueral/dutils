@@ -15,6 +15,7 @@
 #' @importFrom dplyr %>% select
 #' @importFrom rlang .data
 get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone = "Europe/Paris") {
+  print('get_id_table')
   dynamodb_table <- get_dynamodb_table(table_name)
   if (is.null(dynamodb_table)) return( NULL )
 
@@ -151,7 +152,9 @@ parse_python_object <- function(object) {
 pyenv <- new.env()
 
 query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
+  print('query_table')
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  print('sourced')
   pyenv$query_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
 }
 
