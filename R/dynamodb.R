@@ -67,12 +67,14 @@ count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 #'
 #' @importFrom dplyr tibble select %>%
 #' @importFrom rlang .data
-#' @importFrom lubridate days
+#' @importFrom lubridate days as_datetime
 #'
 adapt_date_range <- function(start_date, end_date) {
-  if (as.integer(end_date - start_date, units = 'days') > 30) {
+  start_dttm <- as_datetime(start_date)
+  end_dttm <- as_datetime(end_date)
+  if (as.integer(start_dttm - end_dttm, units = 'days') > 30) {
     tibble(
-      start.date = seq.POSIXt(start_date, end_date, by = '30 days'),
+      start.date = seq.POSIXt(start_dttm, end_dttm, by = '30 days'),
       end.date = start.date + days(30),
       start.timestamp = as.integer(.data$start.date)*1000,
       end.timestamp = as.integer(.data$end.date)*1000
@@ -80,8 +82,8 @@ adapt_date_range <- function(start_date, end_date) {
       select(.data$start.timestamp, .data$end.timestamp)
   } else {
     tibble(
-      start.timestamp = as.integer(start_date)*1000,
-      end.timestamp = as.integer(end_date)*1000
+      start.timestamp = as.integer(start_dttm)*1000,
+      end.timestamp = as.integer(end_dttm)*1000
     )
   }
 }
