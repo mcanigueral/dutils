@@ -75,7 +75,7 @@ adapt_date_range <- function(start_date, end_date) {
   if (as.integer(start_dttm - end_dttm, units = 'days') > 30) {
     tibble(
       start.date = seq.POSIXt(start_dttm, end_dttm, by = '30 days'),
-      end.date = start.date + days(30),
+      end.date = .data$start.date + days(30),
       start.timestamp = as.integer(.data$start.date)*1000,
       end.timestamp = as.integer(.data$end.date)*1000
     ) %>%
