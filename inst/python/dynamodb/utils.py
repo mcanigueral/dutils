@@ -3,7 +3,6 @@ from decimal import Decimal
 from boto3.dynamodb.conditions import Key, Attr
 import pandas as pd
 
-
 def query_table(table, user_id, start, end):
     items = table.query(KeyConditionExpression = Key("id").eq(user_id) & Key('timestamp').between(Decimal(start), Decimal(end)))['Items']
     if (len(items) == 0): return None

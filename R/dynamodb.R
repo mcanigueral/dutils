@@ -143,11 +143,64 @@ parse_python_object <- function(object) {
   }
 }
 
+#' Parse a list of Python objects
+#'
+#' @param objects_list list of Python objects of class decimal.Decimal, character or logical. For other types a NA value will be returned.
+#'
+#' @return list of R objects
+#' @export
+#'
+#' @importFrom purrr map
+parse_python_objects_list <- function(objects_list) {
+  map(objects_list, ~ parse_python_object(.x))
+}
+
+#' Convert DynamoDB Items list to an R tibble
+#'
+#' @param items list, Items from DynamoDB, being each Item an individual list of Python objects of class decimal.Decimal, character or logical. For other types a NA value will be returned.
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom purrr map_dfr
+#' @importFrom dplyr as_tibble
+#'
+dynamodb_items_to_tbl <- function(items) {
+  map_dfr(items, ~ as_tibble(parse_python_objects_list(.x)))
+}
+
 
 # Wrap python functions ---------------------------------------------------
 pyenv <- new.env()
 
-query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
+
+#' Title
+#'
+#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param partition_key_name character, name of the partiton key of the DynamoDB Table
+#' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
+#' @param sort_key_name character, name of the sorting key of the DynamoDB Table
+#' @param sort_key_values vector of values of the sorting key of the DynamoDB Table
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom purrr set_names map map_dfr
+#' @importFrom dplyr %>% select everything
+dynamodb_query_items <- function(dynamodb_table, partition_key_name, partition_key_values, sort_key_name = NULL, sort_key_values = NULL) {
+  # reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  dbKey <- reticulate::import("boto3.dynamodb")$conditions$Key
+  keys_items <- map(
+    set_names(partition_key_values),
+    ~ dynamodb_table$query(KeyConditionExpression = dbKey(partition_key_name)$eq(.x))[['Items']]
+  )
+  map_dfr(keys_items, ~ dynamodb_items_to_tbl(.x)) %>%
+    select(partition_key_name, everything())
+}
+
+
+
+dynamodb_query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
   pyenv$query_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
 }
@@ -160,7 +213,7 @@ query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp)
 #'
 #' @export
 #'
-put_df_to_dynamodb <- function(dynamodb_table, df) {
+dynamodb_put_df <- function(dynamodb_table, df) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
   pyenv$put_df(dynamodb_table, df)
 }
@@ -173,7 +226,7 @@ put_df_to_dynamodb <- function(dynamodb_table, df) {
 #'
 #' @export
 #'
-delete_df_from_dynamodb <- function(dynamodb_table, df) {
+dynamodb_delete_df <- function(dynamodb_table, df) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
   pyenv$delete_df(dynamodb_table, df)
 }
