@@ -1,12 +1,39 @@
 
 from decimal import Decimal
 from boto3.dynamodb.conditions import Key, Attr
-import pandas as pd
+from pandas import DataFrame
 
-def query_table(table, user_id, start, end):
+def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key_name = None, sort_key_start = None, sort_key_end = None):
+    items = []
+    for value in partition_key_values:
+        resp = dynamo_table.query(
+            # ConsistentRead= True,
+            KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
+        )   
+        items += resp["Items"]        
+        
+    if (len(items) == 0): return None
+    
+    items_df = DataFrame(items)
+    return items_df
+    
+    
+def scan_table(dynamo_table, attribute_name, attribute_start, attribute_end):
+    resp <- dynamo_table.scan(
+        FilterExpression = Attr(attribute_name).between(Decimal(attribute_start), Decimal(attribute_end))
+    )
+    items = resp["Items"]
+    
+    if (len(items) == 0): return None
+    
+    items_df = DataFrame(items)
+    return items_df
+
+
+def query_data_table(table, user_id, start, end):
     items = table.query(KeyConditionExpression = Key("id").eq(user_id) & Key('timestamp').between(Decimal(start), Decimal(end)))['Items']
     if (len(items) == 0): return None
-    items_df = pd.DataFrame(items)
+    items_df = DataFrame(items)
     if ('data' not in items_df): return None
     items_df['id'] = [str(i) for i in items_df['id']]
     items_df['timestamp'] = [int(i) for i in items_df['timestamp']]

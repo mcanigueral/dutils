@@ -22,7 +22,7 @@ get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone =
 
   table <- pmap_dfr(
     time_range,
-    ~ query_table(dynamodb_table, id, ..1, ..2)
+    ~ query_data_table(dynamodb_table, id, ..1, ..2)
   )
   if (nrow(table) == 0) return( NULL )
   table %>%
@@ -55,6 +55,9 @@ table_item_count <- function(table) {
   table$item_count
 }
 count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
+
+
+
 
 
 #' Convert start and end dates to DynamoDB timestamp
@@ -163,7 +166,7 @@ parse_python_objects_list <- function(objects_list) {
 #' @export
 #'
 #' @importFrom purrr map_dfr
-#' @importFrom dplyr as_tibble
+#' @importFrom tibble as_tibble
 #'
 dynamodb_items_to_tbl <- function(items) {
   map_dfr(items, ~ as_tibble(parse_python_objects_list(.x)))
@@ -174,35 +177,89 @@ dynamodb_items_to_tbl <- function(items) {
 pyenv <- new.env()
 
 
-#' Title
+#' Query items from DynamoDB Table given specific partition and sorting keys
 #'
-#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param dynamo_table boto3 DynamoDB Table object
 #' @param partition_key_name character, name of the partiton key of the DynamoDB Table
 #' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
 #' @param sort_key_name character, name of the sorting key of the DynamoDB Table
-#' @param sort_key_values vector of values of the sorting key of the DynamoDB Table
+#' @param sort_key_start numeric, start value of the sorting key
+#' @param sort_key_end  numeric, end value of the sorting key
 #'
 #' @return tibble
 #' @export
 #'
 #' @importFrom purrr set_names map map_dfr
 #' @importFrom dplyr %>% select everything
-dynamodb_query_items <- function(dynamodb_table, partition_key_name, partition_key_values, sort_key_name = NULL, sort_key_values = NULL) {
-  # reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  dbKey <- reticulate::import("boto3.dynamodb")$conditions$Key
-  keys_items <- map(
-    set_names(partition_key_values),
-    ~ dynamodb_table$query(KeyConditionExpression = dbKey(partition_key_name)$eq(.x))[['Items']]
+#'
+#' @importFrom tibble as_tibble
+#'
+query_table <- function(dynamo_table, partition_key_name, partition_key_values,
+                        sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL) {
+  reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  df <- pyenv$query_table(
+    dynamo_table,
+    partition_key_name,
+    partition_key_values,
+    reticulate::r_to_py(sort_key_name),
+    reticulate::r_to_py(sort_key_start),
+    reticulate::r_to_py(sort_key_end)
   )
-  map_dfr(keys_items, ~ dynamodb_items_to_tbl(.x)) %>%
-    select(partition_key_name, everything())
+  as_tibble(df)
+}
+# query_table <- function(dynamo_table, partition_key_name, partition_key_values,
+#                                  sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL) {
+#   # reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+#   dbKey <- reticulate::import("boto3.dynamodb")$conditions$Key
+#   Decimal <- reticulate::import("decimal")$Decimal
+#
+#   if (is.null(sort_key_name)) {
+#     keys_items <- map(
+#       set_names(partition_key_values),
+#       ~ dynamo_table$query(KeyConditionExpression = dbKey(partition_key_name)$eq(.x))[['Items']]
+#     )
+#   } else {
+#     keys_items <- map(
+#       set_names(partition_key_values),
+#       ~ dynamo_table$query(
+#         KeyConditionExpression = dbKey(partition_key_name)$eq(.x) & dbKey(sort_key_name)$between(Decimal(sort_key_start), Decimal(sort_key_end))
+#       )[['Items']]
+#     )
+#   }
+#
+#   map_dfr(keys_items, ~ dynamodb_items_to_tbl(.x)) %>%
+#     select(partition_key_name, everything())
+# }
+
+#' Scan items from DynamoDB Table given specific numeric attribute range
+#'
+#' @param dynamo_table boto3 DynamoDB Table object
+#' @param attribute_name character, numeric attribute name
+#' @param attribute_start numeric, attribute start value
+#' @param attribute_end numeric, attribute end value
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom tibble as_tibble
+#'
+scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end) {
+  reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+  df <- pyenv$query_table(
+    dynamo_table,
+    attribute_name,
+    attribute_start,
+    attribute_end
+  )
+  as_tibble(df)
 }
 
 
 
-dynamodb_query_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
+
+query_data_table <- function(dynamodb_table, user_id, start_timestamp, end_timestamp) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  pyenv$query_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
+  pyenv$query_data_table(dynamodb_table, user_id, start_timestamp, end_timestamp)
 }
 
 
