@@ -1,37 +1,4 @@
 
-#' Get data from a specific partition key
-#'
-#' @param dynamodb boto3 DynamoDB resource obtained with `get_dynamodb` function
-#' @param table_name character, table name
-#' @param id character, partition key ID
-#' @param start_date Date, start date
-#' @param end_date Date, end date
-#' @param tzone character, time zone
-#'
-#' @return tibble
-#' @export
-#'
-#' @importFrom purrr pmap_dfr
-#' @importFrom dplyr %>% select
-#' @importFrom rlang .data
-get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone = "Europe/Paris") {
-  dynamodb_table <- get_dynamo_table(dynamodb, table_name)
-  if (is.null(dynamodb_table)) return( NULL )
-
-  time_range <- adapt_date_range(start_date, end_date)
-
-  table <- pmap_dfr(
-    time_range,
-    ~ query_data_table(dynamodb_table, id, ..1, ..2)
-  )
-  if (nrow(table) == 0) return( NULL )
-  table %>%
-    select(.data$id, .data$timestamp, .data$data)  %>%
-    adapt_table_format(tzone)
-}
-
-
-
 #' Get DynamoDB boto3 resource
 #'
 #' @param aws_access_key_id AWS access key ID of a user with permissions for DynamoDB
@@ -131,7 +98,7 @@ adapt_date_range <- function(start_date, end_date, interval_days = 30) {
 #' @importFrom xts align.time
 #' @importFrom rlang .data
 #'
-adapt_table_format <- function(table, tzone = "Europe/Paris") {
+adapt_data_table_format <- function(table, tzone = "Europe/Paris") {
   table %>%
     as_tibble() %>%
     mutate(
@@ -149,7 +116,7 @@ spread_data_column <- function(table) {
 }
 
 spread_data_item <- function(item) {
-  dplyr::bind_cols(purrr::map(item, ~ parse_python_object(.x)))
+  purrr::map_dfc(item, ~ parse_python_object(.x))
 }
 
 
@@ -163,10 +130,12 @@ spread_data_item <- function(item) {
 parse_python_object <- function(object) {
   if ('decimal.Decimal' %in% class(object)) {
     return( as.numeric(as.character(object)) )
-  } else if ('character' == class(object)) {
+  } else if ('character' %in% class(object)) {
     return( as.character(object) )
-  } else if ('logical' == class(object)) {
+  } else if ('logical' %in% class(object)) {
     return( as.logical(object) )
+  } else if ('list' %in% class(object)) {
+    return( parse_python_objects_list(object) )
   } else {
     return( NA )
   }
@@ -198,6 +167,49 @@ dynamodb_items_to_tbl <- function(items) {
   map_dfr(items, ~ as_tibble(parse_python_objects_list(.x)))
 }
 
+# parse_python_data_frame_column <- function(df) {
+#
+# }
+#
+# parse_python_data_frame <- function(df) {
+#
+# }
+
+
+
+#' Get data from a specific partition key
+#'
+#' @param dynamodb boto3 DynamoDB resource obtained with `get_dynamodb` function
+#' @param table_name character, table name
+#' @param id character, partition key ID
+#' @param start_date Date, start date
+#' @param end_date Date, end date
+#' @param tzone character, time zone
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom purrr pmap_dfr
+#' @importFrom dplyr %>% select
+#' @importFrom rlang .data
+get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone = "Europe/Paris") {
+  dynamodb_table <- get_dynamo_table(dynamodb, table_name)
+  if (is.null(dynamodb_table)) return( NULL )
+
+  time_range <- adapt_date_range(start_date, end_date)
+
+  table <- pmap_dfr(
+    time_range,
+    ~ query_data_table(dynamodb_table, id, ..1, ..2)
+  )
+  if (nrow(table) == 0) return( NULL )
+  table %>%
+    select(.data$id, .data$timestamp, .data$data)  %>%
+    adapt_data_table_format(tzone)
+}
+
+
+
 
 # Wrap python functions ---------------------------------------------------
 pyenv <- new.env()
@@ -215,13 +227,11 @@ pyenv <- new.env()
 #' @return tibble
 #' @export
 #'
-#' @importFrom purrr set_names map map_dfr
-#' @importFrom dplyr %>% select everything
-#'
+#' @importFrom dplyr %>%
 #' @importFrom tibble as_tibble
 #'
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
-                        sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL) {
+                        sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
   df <- pyenv$query_table(
     dynamo_table,
@@ -230,32 +240,10 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     reticulate::r_to_py(sort_key_name),
     reticulate::r_to_py(sort_key_start),
     reticulate::r_to_py(sort_key_end)
-  )
-  as_tibble(df)
+  ) %>% as_tibble()
+
 }
-# query_table <- function(dynamo_table, partition_key_name, partition_key_values,
-#                                  sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL) {
-#   # reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-#   dbKey <- reticulate::import("boto3.dynamodb")$conditions$Key
-#   Decimal <- reticulate::import("decimal")$Decimal
-#
-#   if (is.null(sort_key_name)) {
-#     keys_items <- map(
-#       set_names(partition_key_values),
-#       ~ dynamo_table$query(KeyConditionExpression = dbKey(partition_key_name)$eq(.x))[['Items']]
-#     )
-#   } else {
-#     keys_items <- map(
-#       set_names(partition_key_values),
-#       ~ dynamo_table$query(
-#         KeyConditionExpression = dbKey(partition_key_name)$eq(.x) & dbKey(sort_key_name)$between(Decimal(sort_key_start), Decimal(sort_key_end))
-#       )[['Items']]
-#     )
-#   }
-#
-#   map_dfr(keys_items, ~ dynamodb_items_to_tbl(.x)) %>%
-#     select(partition_key_name, everything())
-# }
+
 
 #' Scan items from DynamoDB Table given specific numeric attribute range
 #'

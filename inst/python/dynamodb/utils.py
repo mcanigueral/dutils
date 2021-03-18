@@ -11,16 +11,26 @@ def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key
         partition_key_values = [partition_key_values]
   
     items = []
-    for value in partition_key_values:
-        resp = dynamo_table.query(
-            # ConsistentRead= True,
-            KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
-        ) 
-        items += resp["Items"] 
-        
+    if sort_key_name is not None:
+        for value in partition_key_values:
+            resp = dynamo_table.query(
+                KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
+            ) 
+            items += resp["Items"] 
+    else:
+        for value in partition_key_values:
+            resp = dynamo_table.query(
+                KeyConditionExpression = Key(partition_key_name).eq(value)
+            ) 
+            items += resp["Items"] 
+            
     if (len(items) == 0): return None
     
     items_df = DataFrame(items)
+    items_df[partition_key_name] = [str(i) for i in items_df[partition_key_name]]
+    if sort_key_name is not None:
+        items_df[sort_key_name] = [Decimal(i) for i in items_df[sort_key_name]]
+        
     return items_df
     
     
