@@ -247,8 +247,6 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
 
-  if (nrow(table) == 0) return( NULL )
-
   df <- pyenv$query_table(
     dynamo_table,
     partition_key_name,
