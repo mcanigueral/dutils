@@ -48,7 +48,7 @@ count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 
 
 date_to_timestamp <- function(date, milliseconds = T) {
-  timestamp <- as.integer(lubridate::as_datetime(date, tz = "UTC"))
+  timestamp <- as.integer(lubridate::as_datetime(date, tz = "Europe/Paris"))
   if (milliseconds) {
     return ( timestamp*1000 )
   } else {
