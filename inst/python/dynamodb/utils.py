@@ -1,4 +1,5 @@
 
+# reticulate::use_python('/usr/bin/python3', required = T) # Restart R session to change the python env
 from decimal import Decimal
 from boto3.dynamodb.conditions import Key, Attr
 from pandas import DataFrame
