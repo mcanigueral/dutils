@@ -325,7 +325,7 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
     df <- mutate(df, datetime = align.time(.data$datetime, n=60*time_interval_mins))
   }
 
-  df <- select(df, .data[[partition_key_name]], .data$datetime, everything(), - .data[[sort_key_name]])
+  df <- select(df, .data[[partition_key_name]], .data[['datetime']], everything(), - .data[[sort_key_name]])
 
   if (is.null(spread_column)) {
     return( df )

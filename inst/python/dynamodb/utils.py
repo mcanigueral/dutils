@@ -8,28 +8,36 @@ from pandas import DataFrame
 def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key_name = None, sort_key_start = None, sort_key_end = None):
     
     if isinstance(partition_key_values, str): # If only one key value we put it in a list to iterate in the for loop
-        partition_key_values = [partition_key_values]
+      partition_key_values = [partition_key_values]
   
     items = []
     if sort_key_name is not None:
+      
+      if sort_key_start == sort_key_end:
         for value in partition_key_values:
-            resp = dynamo_table.query(
-                KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
-            ) 
-            items += resp["Items"] 
+          resp = dynamo_table.query(
+              KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).gte(Decimal(sort_key_start))
+          ) 
+          items += resp["Items"] 
+      else:
+        for value in partition_key_values:
+          resp = dynamo_table.query(
+              KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
+          ) 
+          items += resp["Items"] 
     else:
-        for value in partition_key_values:
-            resp = dynamo_table.query(
-                KeyConditionExpression = Key(partition_key_name).eq(value)
-            ) 
-            items += resp["Items"] 
+      for value in partition_key_values:
+        resp = dynamo_table.query(
+            KeyConditionExpression = Key(partition_key_name).eq(value)
+        ) 
+        items += resp["Items"] 
             
     if (len(items) == 0): return None
     
     items_df = DataFrame(items)
     items_df[partition_key_name] = [str(i) for i in items_df[partition_key_name]]
     if sort_key_name is not None:
-        items_df[sort_key_name] = [Decimal(i) for i in items_df[sort_key_name]]
+      items_df[sort_key_name] = [Decimal(i) for i in items_df[sort_key_name]]
         
     return items_df
     

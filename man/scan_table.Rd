@@ -4,7 +4,13 @@
 \alias{scan_table}
 \title{Scan items from DynamoDB Table given specific numeric attribute range}
 \usage{
-scan_table(dynamo_table, attribute_name, attribute_start, attribute_end)
+scan_table(
+  dynamo_table,
+  attribute_name,
+  attribute_start,
+  attribute_end,
+  parse = T
+)
 }
 \arguments{
 \item{dynamo_table}{boto3 DynamoDB Table obtained with \code{get_dynamo_table} function}
@@ -14,6 +20,8 @@ scan_table(dynamo_table, attribute_name, attribute_start, attribute_end)
 \item{attribute_start}{numeric, attribute start value}
 
 \item{attribute_end}{numeric, attribute end value}
+
+\item{parse}{logical, whether to parse Python objects to R objects}
 }
 \value{
 tibble
