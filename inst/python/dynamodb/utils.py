@@ -1,7 +1,9 @@
 
+# reticulate::use_python('/usr/bin/python3', required = T) # Restart R session to change the python env
 from decimal import Decimal
 from boto3.dynamodb.conditions import Key, Attr
 from pandas import DataFrame
+
 
 def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key_name = None, sort_key_start = None, sort_key_end = None):
     items = []
@@ -10,8 +12,10 @@ def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key
             # ConsistentRead= True,
             KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
         )   
-        items += resp["Items"]        
+        items += resp["Items"]     
         
+    print(len(items), '-------------------------------------------------------')
+    print(items)
     if (len(items) == 0): return None
     
     items_df = DataFrame(items)

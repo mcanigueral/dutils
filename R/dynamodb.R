@@ -57,13 +57,16 @@ table_item_count <- function(table) {
 count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 
 
-
+date_to_timestamp <- function(date) {
+  as.integer(lubridate::as_datetime(date))*1000
+}
 
 
 #' Convert start and end dates to DynamoDB timestamp
 #'
 #' @param start_date Date, start date
 #' @param end_date Date, end date
+#' @param interval_days integer, number of days of each query interval
 #'
 #' @return tibble
 #' @export
@@ -72,21 +75,21 @@ count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 #' @importFrom rlang .data
 #' @importFrom lubridate days as_datetime
 #'
-adapt_date_range <- function(start_date, end_date) {
-  start_dttm <- as_datetime(start_date)
-  end_dttm <- as_datetime(end_date)
-  if (as.integer(start_dttm - end_dttm, units = 'days') > 30) {
+adapt_date_range <- function(start_date, end_date, interval_days = 30) {
+  # start_dttm <- as_datetime(start_date)
+  # end_dttm <- as_datetime(end_date)
+  if (as.integer(end_date - start_date, units = 'days') > interval_days) {
     tibble(
-      start.date = seq.POSIXt(start_dttm, end_dttm, by = '30 days'),
-      end.date = .data$start.date + days(30),
-      start.timestamp = as.integer(.data$start.date)*1000,
-      end.timestamp = as.integer(.data$end.date)*1000
+      start.date = seq.Date(start_date, end_date, by = paste(interval_days, 'days')),
+      end.date = .data$start.date + days(interval_days),
+      start.timestamp = date_to_timestamp(.data$start.date),
+      end.timestamp = date_to_timestamp(.data$end.date)
     ) %>%
       select(.data$start.timestamp, .data$end.timestamp)
   } else {
     tibble(
-      start.timestamp = as.integer(start_dttm)*1000,
-      end.timestamp = as.integer(end_dttm)*1000
+      start.timestamp = date_to_timestamp(start_date),
+      end.timestamp = date_to_timestamp(end_date)
     )
   }
 }
@@ -245,7 +248,7 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
 #'
 scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  df <- pyenv$query_table(
+  df <- pyenv$scan_table(
     dynamo_table,
     attribute_name,
     attribute_start,
