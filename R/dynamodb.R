@@ -240,8 +240,8 @@ pyenv <- new.env()
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>%
 #' @importFrom tibble as_tibble
+#' @importFrom purrr simplify
 #'
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
@@ -254,13 +254,15 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     reticulate::r_to_py(sort_key_name),
     reticulate::r_to_py(sort_key_start),
     reticulate::r_to_py(sort_key_end)
-  ) %>%
-    as_tibble()
+  )
+
+  tbl <- as_tibble(df)
+  tbl[[sort_key_name]] <- simplify(tbl[[sort_key_name]])
 
   if (!parse) {
-    return( df )
+    return( tbl )
   } else {
-    return( parse_python_data_frame(df) )
+    return( parse_python_data_frame(tbl) )
   }
 }
 
