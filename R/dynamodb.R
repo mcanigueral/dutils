@@ -249,7 +249,7 @@ pyenv <- new.env()
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr as_tibble %>%
+#' @importFrom dplyr as_tibble %>% select everything
 #'
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
@@ -264,6 +264,12 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     reticulate::r_to_py(sort_key_end)
   ) %>%
     as_tibble()
+
+  if (is.null(sort_key_name)) {
+    df <- select(df, partition_key_name, everything())
+  } else {
+    df <- select(df, partition_key_name, sort_key_name, everything())
+  }
 
   if (!parse) {
     return( df )
