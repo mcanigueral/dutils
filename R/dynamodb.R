@@ -250,6 +250,7 @@ pyenv <- new.env()
 #' @export
 #'
 #' @importFrom dplyr as_tibble %>% select everything
+#' @importFrom rlang .data
 #'
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
@@ -266,9 +267,9 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     as_tibble()
 
   if (is.null(sort_key_name)) {
-    df <- select(df, partition_key_name, everything())
+    df <- select(df, .data[[partition_key_name]], everything())
   } else {
-    df <- select(df, partition_key_name, sort_key_name, everything())
+    df <- select(df, .data[[partition_key_name]], .data[[sort_key_name]], everything())
   }
 
   if (!parse) {
