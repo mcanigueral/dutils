@@ -47,11 +47,11 @@ table_item_count <- function(table) {
 count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 
 
-date_to_timestamp <- function(date, milliseconds = T) {
+date_to_timestamp <- function(date, tzone = "Europe/Paris", milliseconds = T) {
   timestamp <- as.integer(
     lubridate::force_tz(
       lubridate::as_datetime(date, tz = "UTC"),
-      "Europe/Paris"
+      tzone
     )
   )
   if (milliseconds) {
@@ -66,6 +66,7 @@ date_to_timestamp <- function(date, milliseconds = T) {
 #'
 #' @param start_date Date, start date
 #' @param end_date Date, end date
+#' @param tzone character, time zone of the timeseries data
 #' @param interval_days integer, number of days of each query interval
 #' @param milliseconds logical, whether the timestamp variable is in milliseconds or not
 #'
@@ -76,21 +77,21 @@ date_to_timestamp <- function(date, milliseconds = T) {
 #' @importFrom rlang .data
 #' @importFrom lubridate days as_datetime
 #'
-adapt_date_range <- function(start_date, end_date, interval_days = 30, milliseconds = T) {
+adapt_date_range <- function(start_date, end_date, tzone = "Europe/Paris", interval_days = 30, milliseconds = T) {
   # start_dttm <- as_datetime(start_date)
   # end_dttm <- as_datetime(end_date)
   if (as.integer(end_date - start_date, units = 'days') > interval_days) {
     tibble(
       start.date = seq.Date(start_date, end_date, by = paste(interval_days, 'days')),
       end.date = .data$start.date + days(interval_days),
-      start.timestamp = date_to_timestamp(.data$start.date, milliseconds),
-      end.timestamp = date_to_timestamp(.data$end.date, milliseconds)
+      start.timestamp = date_to_timestamp(.data$start.date, tzone, milliseconds),
+      end.timestamp = date_to_timestamp(.data$end.date, tzone, milliseconds)
     ) %>%
       select(.data$start.timestamp, .data$end.timestamp)
   } else {
     tibble(
-      start.timestamp = date_to_timestamp(start_date, milliseconds),
-      end.timestamp = date_to_timestamp(end_date, milliseconds)
+      start.timestamp = date_to_timestamp(start_date, tzone, milliseconds),
+      end.timestamp = date_to_timestamp(end_date, tzone, milliseconds)
     )
   }
 }
@@ -299,7 +300,7 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
                                         sort_key_name, start_date, end_date, tzone = 'Europe/Paris',
                                         query_interval_days = 30, milliseconds = T, time_interval_mins = NULL,
                                         spread_column = NULL) {
-  time_range <- adapt_date_range(start_date, end_date, query_interval_days, milliseconds)
+  time_range <- adapt_date_range(start_date, end_date, tzone, query_interval_days, milliseconds)
 
   df <- pmap_dfr(
     time_range,
