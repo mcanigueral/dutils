@@ -167,7 +167,7 @@ parse_python_objects_list <- function(objects_list) {
 #' @export
 #'
 #' @importFrom purrr map_dfr
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr as_tibble
 #'
 dynamodb_items_to_tbl <- function(items) {
   map_dfr(items, ~ as_tibble(parse_python_objects_list(.x)))
@@ -181,10 +181,13 @@ dynamodb_items_to_tbl <- function(items) {
 #' @return data frame or tibble
 #' @export
 #'
-#' @importFrom dplyr mutate_all
+#' @importFrom dplyr %>% mutate_all
+#' @importFrom purrr simplify
 #'
 parse_python_data_frame <- function(df) {
-  mutate_all(df, parse_python_object)
+  df %>%
+    mutate_all(parse_python_object) %>%
+    mutate_all(simplify)
 }
 
 
@@ -240,8 +243,7 @@ pyenv <- new.env()
 #' @return tibble
 #' @export
 #'
-#' @importFrom tibble as_tibble
-#' @importFrom purrr simplify
+#' @importFrom dplyr as_tibble %>%
 #'
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
@@ -254,15 +256,13 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     reticulate::r_to_py(sort_key_name),
     reticulate::r_to_py(sort_key_start),
     reticulate::r_to_py(sort_key_end)
-  )
-
-  tbl <- as_tibble(df)
-  tbl[[sort_key_name]] <- simplify(tbl[[sort_key_name]])
+  ) %>%
+    as_tibble()
 
   if (!parse) {
-    return( tbl )
+    return( df )
   } else {
-    return( parse_python_data_frame(tbl) )
+    return( parse_python_data_frame(df) )
   }
 }
 
@@ -287,7 +287,7 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
 #' @importFrom purrr map_dfr
 #' @importFrom dplyr mutate select everything
 #' @importFrom lubridate as_datetime
-#' @improtFrom xts align.time
+#' @importFrom xts align.time
 #' @importFrom rlang .data
 #'
 query_timeseries_data_table <- function(dynamo_table, partition_key_name, partition_key_values,
@@ -332,7 +332,7 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
 #' @return tibble
 #' @export
 #'
-#' @importFrom tibble as_tibble
+#' @importFrom dplyr as_tibble
 #'
 scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
