@@ -266,11 +266,11 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
   ) %>%
     as_tibble()
 
-  if (is.null(sort_key_name)) {
-    df <- select(df, .data[[partition_key_name]], everything())
-  } else {
-    df <- select(df, .data[[partition_key_name]], .data[[sort_key_name]], everything())
-  }
+  # if (is.null(sort_key_name)) {
+  #   df <- select(df, .data[[partition_key_name]], everything())
+  # } else {
+  #   df <- select(df, .data[[partition_key_name]], .data[[sort_key_name]], everything())
+  # }
 
   if (!parse) {
     return( df )
