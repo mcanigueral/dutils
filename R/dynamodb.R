@@ -47,8 +47,13 @@ table_item_count <- function(table) {
 count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 
 
-date_to_timestamp <- function(date) {
-  as.integer(lubridate::as_datetime(date))*1000
+date_to_timestamp <- function(date, milliseconds = T) {
+  timestamp <- as.integer(lubridate::as_datetime(date, tz = "UTC"))
+  if (milliseconds) {
+    return ( timestamp*1000 )
+  } else {
+    return( timestamp )
+  }
 }
 
 
@@ -57,6 +62,7 @@ date_to_timestamp <- function(date) {
 #' @param start_date Date, start date
 #' @param end_date Date, end date
 #' @param interval_days integer, number of days of each query interval
+#' @param milliseconds logical, whether the timestamp variable is in milliseconds or not
 #'
 #' @return tibble
 #' @export
@@ -65,21 +71,21 @@ date_to_timestamp <- function(date) {
 #' @importFrom rlang .data
 #' @importFrom lubridate days as_datetime
 #'
-adapt_date_range <- function(start_date, end_date, interval_days = 30) {
+adapt_date_range <- function(start_date, end_date, interval_days = 30, milliseconds = T) {
   # start_dttm <- as_datetime(start_date)
   # end_dttm <- as_datetime(end_date)
   if (as.integer(end_date - start_date, units = 'days') > interval_days) {
     tibble(
       start.date = seq.Date(start_date, end_date, by = paste(interval_days, 'days')),
       end.date = .data$start.date + days(interval_days),
-      start.timestamp = date_to_timestamp(.data$start.date),
-      end.timestamp = date_to_timestamp(.data$end.date)
+      start.timestamp = date_to_timestamp(.data$start.date, milliseconds),
+      end.timestamp = date_to_timestamp(.data$end.date, milliseconds)
     ) %>%
       select(.data$start.timestamp, .data$end.timestamp)
   } else {
     tibble(
-      start.timestamp = date_to_timestamp(start_date),
-      end.timestamp = date_to_timestamp(end_date)
+      start.timestamp = date_to_timestamp(start_date, milliseconds),
+      end.timestamp = date_to_timestamp(end_date, milliseconds)
     )
   }
 }
@@ -109,10 +115,10 @@ adapt_data_table_format <- function(table, tzone = "Europe/Paris") {
     spread_data_column()
 }
 
-spread_data_column <- function(table) {
+spread_data_column <- function(table, data_column_name = 'data') {
   table %>%
-    dplyr::mutate(purrr::map_dfr(.data$data, ~ spread_data_item(.x))) %>%
-    dplyr::select(-'data')
+    dplyr::mutate(purrr::map_dfr(.data[[data_column_name]], ~ spread_data_item(.x))) %>%
+    dplyr::select(- data_column_name)
 }
 
 spread_data_item <- function(item) {
@@ -137,7 +143,7 @@ parse_python_object <- function(object) {
   } else if ('list' %in% class(object)) {
     return( parse_python_objects_list(object) )
   } else {
-    return( NA )
+    return( object )
   }
 }
 
@@ -167,13 +173,19 @@ dynamodb_items_to_tbl <- function(items) {
   map_dfr(items, ~ as_tibble(parse_python_objects_list(.x)))
 }
 
-# parse_python_data_frame_column <- function(df) {
-#
-# }
-#
-# parse_python_data_frame <- function(df) {
-#
-# }
+
+#' Parse data frame with Python objects to R object
+#'
+#' @param df data frame with Python objects
+#'
+#' @return data frame or tibble
+#' @export
+#'
+#' @importFrom dplyr mutate_all
+#'
+parse_python_data_frame <- function(df) {
+  mutate_all(df, parse_python_object)
+}
 
 
 
@@ -218,11 +230,12 @@ pyenv <- new.env()
 #' Query items from DynamoDB Table given specific partition and sorting keys
 #'
 #' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
-#' @param partition_key_name character, name of the partiton key of the DynamoDB Table
+#' @param partition_key_name character, name of the partiton key of the DynamoDB Table. It has to be a string variable.
 #' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
-#' @param sort_key_name character, name of the sorting key of the DynamoDB Table
+#' @param sort_key_name character, name of the sorting key of the DynamoDB Table. It has to be a numeric variable.
 #' @param sort_key_start numeric, start value of the sorting key
 #' @param sort_key_end  numeric, end value of the sorting key
+#' @param parse logical, whether to parse Python objects to R objects
 #'
 #' @return tibble
 #' @export
@@ -233,6 +246,9 @@ pyenv <- new.env()
 query_table <- function(dynamo_table, partition_key_name, partition_key_values,
                         sort_key_name = NULL, sort_key_start = NULL, sort_key_end = NULL, parse = T) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
+
+  if (nrow(table) == 0) return( NULL )
+
   df <- pyenv$query_table(
     dynamo_table,
     partition_key_name,
@@ -240,8 +256,69 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
     reticulate::r_to_py(sort_key_name),
     reticulate::r_to_py(sort_key_start),
     reticulate::r_to_py(sort_key_end)
-  ) %>% as_tibble()
+  ) %>%
+    as_tibble()
 
+  if (!parse) {
+    return( df )
+  } else {
+    return( parse_python_data_frame(df) )
+  }
+}
+
+
+#' Query table using a timestamp variable as sorting key
+#'
+#' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
+#' @param partition_key_name character, name of the partiton key of the DynamoDB Table. It has to be a string variable.
+#' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
+#' @param sort_key_name character, name of the sorting key of the DynamoDB Table. It has to be a numeric variable.
+#' @param start_date Date, start date
+#' @param end_date Date, end date
+#' @param tzone character, time zone of the timeseries data
+#' @param query_interval_days integer, number of days of each query interval
+#' @param milliseconds logical, whether the timestamp is in milliseconds or not
+#' @param time_interval_mins integer, interval of minutes to align datetime column. If `NULL` the datetime column is not aligned.
+#' @param spread_column character, name of the dictionary variable to spread. If `NULL` no columns are spread.
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom purrr map_dfr
+#' @importFrom dplyr mutate select everything
+#' @importFrom lubridate as_datetime
+#' @improtFrom xts align.time
+#' @importFrom rlang .data
+#'
+query_timeseries_data_table <- function(dynamo_table, partition_key_name, partition_key_values,
+                                        sort_key_name, start_date, end_date, tzone = 'Europe/Paris',
+                                        query_interval_days = 30, milliseconds = T, time_interval_mins = NULL,
+                                        spread_column = NULL) {
+  time_range <- adapt_date_range(start_date, end_date, query_interval_days, milliseconds)
+
+  df <- pmap_dfr(
+    time_range,
+    ~ query_table(dynamo_table, partition_key_name, partition_key_values,
+                  sort_key_name, ..1, ..2, parse = T)
+  )
+
+  if (milliseconds) {
+    df <- mutate(df, datetime = as_datetime(.data$timestamp/1000, tz = tzone))
+  } else {
+    df <- mutate(df, datetime = as_datetime(.data$timestamp, tz = tzone))
+  }
+
+  if (!is.null(time_interval_mins)) {
+    df <- mutate(df, datetime = align.time(.data$datetime, n=60*time_interval_mins))
+  }
+
+  df <- select(df, .data[[partition_key_name]], .data$datetime, everything(), - .data[[sort_key_name]])
+
+  if (is.null(spread_column)) {
+    return( df )
+  } else {
+    return( spread_data_column(df, spread_column) )
+  }
 }
 
 

@@ -35,7 +35,7 @@ def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key
     
     
 def scan_table(dynamo_table, attribute_name, attribute_start, attribute_end):
-    resp <- dynamo_table.scan(
+    resp = dynamo_table.scan(
         FilterExpression = Attr(attribute_name).between(Decimal(attribute_start), Decimal(attribute_end))
     )
     items = resp["Items"]

@@ -4,7 +4,7 @@
 \alias{adapt_date_range}
 \title{Convert start and end dates to DynamoDB timestamp}
 \usage{
-adapt_date_range(start_date, end_date, interval_days = 30)
+adapt_date_range(start_date, end_date, interval_days = 30, milliseconds = T)
 }
 \arguments{
 \item{start_date}{Date, start date}
@@ -12,6 +12,8 @@ adapt_date_range(start_date, end_date, interval_days = 30)
 \item{end_date}{Date, end date}
 
 \item{interval_days}{integer, number of days of each query interval}
+
+\item{milliseconds}{logical, whether the timestamp variable is in milliseconds or not}
 }
 \value{
 tibble

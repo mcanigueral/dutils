@@ -10,21 +10,24 @@ query_table(
   partition_key_values,
   sort_key_name = NULL,
   sort_key_start = NULL,
-  sort_key_end = NULL
+  sort_key_end = NULL,
+  parse = T
 )
 }
 \arguments{
 \item{dynamo_table}{boto3 DynamoDB Table obtained with \code{get_dynamo_table} function}
 
-\item{partition_key_name}{character, name of the partiton key of the DynamoDB Table}
+\item{partition_key_name}{character, name of the partiton key of the DynamoDB Table. It has to be a string variable.}
 
 \item{partition_key_values}{vector of values of the partiton key of the DynamoDB Table}
 
-\item{sort_key_name}{character, name of the sorting key of the DynamoDB Table}
+\item{sort_key_name}{character, name of the sorting key of the DynamoDB Table. It has to be a numeric variable.}
 
 \item{sort_key_start}{numeric, start value of the sorting key}
 
 \item{sort_key_end}{numeric, end value of the sorting key}
+
+\item{parse}{logical, whether to parse Python objects to R objects}
 }
 \value{
 tibble
