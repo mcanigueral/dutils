@@ -334,21 +334,27 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
 #' @param attribute_name character, numeric attribute name
 #' @param attribute_start numeric, attribute start value
 #' @param attribute_end numeric, attribute end value
+#' @param parse logical, whether to parse Python objects to R objects
 #'
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr as_tibble
+#' @importFrom dplyr as_tibble %>%
 #'
-scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end) {
+scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end, parse = T) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
   df <- pyenv$scan_table(
     dynamo_table,
     attribute_name,
     attribute_start,
     attribute_end
-  )
-  as_tibble(df)
+  ) %>% as_tibble()
+
+  if (!parse) {
+    return( df )
+  } else {
+    return( parse_python_data_frame(df) )
+  }
 }
 
 
