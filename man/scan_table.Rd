@@ -7,7 +7,7 @@
 scan_table(dynamo_table, attribute_name, attribute_start, attribute_end)
 }
 \arguments{
-\item{dynamo_table}{boto3 DynamoDB Table object}
+\item{dynamo_table}{boto3 DynamoDB Table obtained with \code{get_dynamo_table} function}
 
 \item{attribute_name}{character, numeric attribute name}
 

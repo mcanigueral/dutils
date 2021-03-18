@@ -4,12 +4,14 @@
 \alias{adapt_date_range}
 \title{Convert start and end dates to DynamoDB timestamp}
 \usage{
-adapt_date_range(start_date, end_date)
+adapt_date_range(start_date, end_date, interval_days = 30)
 }
 \arguments{
 \item{start_date}{Date, start date}
 
 \item{end_date}{Date, end date}
+
+\item{interval_days}{integer, number of days of each query interval}
 }
 \value{
 tibble

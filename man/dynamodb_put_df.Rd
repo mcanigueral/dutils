@@ -4,10 +4,10 @@
 \alias{dynamodb_put_df}
 \title{Put data frame to DynamoDB table}
 \usage{
-dynamodb_put_df(dynamodb_table, df)
+dynamodb_put_df(dynamo_table, df)
 }
 \arguments{
-\item{dynamodb_table}{boto3 DynamoDB Table object}
+\item{dynamo_table}{boto3 DynamoDB Table obtained with \code{get_dynamo_table} function}
 
 \item{df}{data frame to put}
 }

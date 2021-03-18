@@ -3,14 +3,19 @@ from decimal import Decimal
 from boto3.dynamodb.conditions import Key, Attr
 from pandas import DataFrame
 
+
 def query_table(dynamo_table, partition_key_name, partition_key_values, sort_key_name = None, sort_key_start = None, sort_key_end = None):
+    
+    if isinstance(partition_key_values, str): # If only one key value we put it in a list to iterate in the for loop
+        partition_key_values = [partition_key_values]
+  
     items = []
     for value in partition_key_values:
         resp = dynamo_table.query(
             # ConsistentRead= True,
             KeyConditionExpression = Key(partition_key_name).eq(value) & Key(sort_key_name).between(Decimal(sort_key_start), Decimal(sort_key_end))
-        )   
-        items += resp["Items"]        
+        ) 
+        items += resp["Items"] 
         
     if (len(items) == 0): return None
     

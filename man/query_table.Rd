@@ -14,7 +14,7 @@ query_table(
 )
 }
 \arguments{
-\item{dynamo_table}{boto3 DynamoDB Table object}
+\item{dynamo_table}{boto3 DynamoDB Table obtained with \code{get_dynamo_table} function}
 
 \item{partition_key_name}{character, name of the partiton key of the DynamoDB Table}
 

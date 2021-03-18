@@ -1,7 +1,7 @@
 
 #' Get data from a specific partition key
 #'
-#' @param dynamodb boto3 DynamoDB object
+#' @param dynamodb boto3 DynamoDB resource obtained with `get_dynamodb` function
 #' @param table_name character, table name
 #' @param id character, partition key ID
 #' @param start_date Date, start date
@@ -15,7 +15,7 @@
 #' @importFrom dplyr %>% select
 #' @importFrom rlang .data
 get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone = "Europe/Paris") {
-  dynamodb_table <- get_dynamodb_table(dynamodb, table_name)
+  dynamodb_table <- get_dynamo_table(dynamodb, table_name)
   if (is.null(dynamodb_table)) return( NULL )
 
   time_range <- adapt_date_range(start_date, end_date)
@@ -31,19 +31,42 @@ get_id_table <- function(dynamodb, table_name, id, start_date, end_date, tzone =
 }
 
 
+
+#' Get DynamoDB boto3 resource
+#'
+#' @param aws_access_key_id AWS access key ID of a user with permissions for DynamoDB
+#' @param aws_secret_access_key AWS secret access key of a user with permissions for DynamoDB
+#' @param region_name AWS DynamoDB region name (e.g. eu-west-1)
+#'
+#' @return boto3 DynamoDB resource
+#' @export
+#'
+#' @details To create a user with permissions go to IAM AWS service and create a new user with Programmatic access, attaching existing policies directly for a fast configuration.
+#'
+get_dynamodb <- function(aws_access_key_id, aws_secret_access_key, region_name) {
+  boto3 <- reticulate::import("boto3")
+  boto3$resource(
+    'dynamodb',
+    aws_access_key_id = aws_access_key_id,
+    aws_secret_access_key = aws_secret_access_key,
+    region_name = region_name
+  )
+}
+
+
 #' Get boto3 DynamoDB Table object
 #'
-#' @param dynamodb boto3 DynamoDB object
+#' @param dynamodb boto3 DynamoDB resource obtained with `get_dynamodb` function
 #' @param table_name character, table name
 #'
 #' @return boto3 DynamoDB Table object
 #' @export
 #'
-get_dynamodb_table <- function(dynamodb, table_name) {
-  dynamodb_table <- dynamodb$Table(table_name)
-  items_count <- count_table_items(dynamodb_table)
+get_dynamo_table <- function(dynamodb, table_name) {
+  dynamo_table <- dynamodb$Table(table_name)
+  items_count <- count_table_items(dynamo_table)
   if (!is.null(items_count) & (items_count > 0)) {
-    return( dynamodb_table )
+    return( dynamo_table )
   } else {
     if (!is.null(items_count)) message("This table does not exist.")
     if (items_count <= 0) message("This table is empty.")
@@ -57,13 +80,16 @@ table_item_count <- function(table) {
 count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 
 
-
+date_to_timestamp <- function(date) {
+  as.integer(lubridate::as_datetime(date))*1000
+}
 
 
 #' Convert start and end dates to DynamoDB timestamp
 #'
 #' @param start_date Date, start date
 #' @param end_date Date, end date
+#' @param interval_days integer, number of days of each query interval
 #'
 #' @return tibble
 #' @export
@@ -72,21 +98,21 @@ count_table_items <- purrr::possibly(table_item_count, otherwise = NULL)
 #' @importFrom rlang .data
 #' @importFrom lubridate days as_datetime
 #'
-adapt_date_range <- function(start_date, end_date) {
-  start_dttm <- as_datetime(start_date)
-  end_dttm <- as_datetime(end_date)
-  if (as.integer(start_dttm - end_dttm, units = 'days') > 30) {
+adapt_date_range <- function(start_date, end_date, interval_days = 30) {
+  # start_dttm <- as_datetime(start_date)
+  # end_dttm <- as_datetime(end_date)
+  if (as.integer(end_date - start_date, units = 'days') > interval_days) {
     tibble(
-      start.date = seq.POSIXt(start_dttm, end_dttm, by = '30 days'),
-      end.date = .data$start.date + days(30),
-      start.timestamp = as.integer(.data$start.date)*1000,
-      end.timestamp = as.integer(.data$end.date)*1000
+      start.date = seq.Date(start_date, end_date, by = paste(interval_days, 'days')),
+      end.date = .data$start.date + days(interval_days),
+      start.timestamp = date_to_timestamp(.data$start.date),
+      end.timestamp = date_to_timestamp(.data$end.date)
     ) %>%
       select(.data$start.timestamp, .data$end.timestamp)
   } else {
     tibble(
-      start.timestamp = as.integer(start_dttm)*1000,
-      end.timestamp = as.integer(end_dttm)*1000
+      start.timestamp = date_to_timestamp(start_date),
+      end.timestamp = date_to_timestamp(end_date)
     )
   }
 }
@@ -179,7 +205,7 @@ pyenv <- new.env()
 
 #' Query items from DynamoDB Table given specific partition and sorting keys
 #'
-#' @param dynamo_table boto3 DynamoDB Table object
+#' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
 #' @param partition_key_name character, name of the partiton key of the DynamoDB Table
 #' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
 #' @param sort_key_name character, name of the sorting key of the DynamoDB Table
@@ -233,7 +259,7 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
 
 #' Scan items from DynamoDB Table given specific numeric attribute range
 #'
-#' @param dynamo_table boto3 DynamoDB Table object
+#' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
 #' @param attribute_name character, numeric attribute name
 #' @param attribute_start numeric, attribute start value
 #' @param attribute_end numeric, attribute end value
@@ -245,7 +271,7 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
 #'
 scan_table <- function(dynamo_table, attribute_name, attribute_start, attribute_end) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  df <- pyenv$query_table(
+  df <- pyenv$scan_table(
     dynamo_table,
     attribute_name,
     attribute_start,
@@ -265,27 +291,27 @@ query_data_table <- function(dynamodb_table, user_id, start_timestamp, end_times
 
 #' Put data frame to DynamoDB table
 #'
-#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
 #' @param df data frame to put
 #'
 #' @export
 #'
-dynamodb_put_df <- function(dynamodb_table, df) {
+dynamodb_put_df <- function(dynamo_table, df) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  pyenv$put_df(dynamodb_table, df)
+  pyenv$put_df(dynamo_table, df)
 }
 
 
 #' Delete data frame from DynamoDB table
 #'
-#' @param dynamodb_table boto3 DynamoDB Table object
+#' @param dynamo_table boto3 DynamoDB Table obtained with `get_dynamo_table` function
 #' @param df data frame to put
 #'
 #' @export
 #'
-dynamodb_delete_df <- function(dynamodb_table, df) {
+dynamodb_delete_df <- function(dynamo_table, df) {
   reticulate::source_python(system.file("python/dynamodb/utils.py", package = 'dutils'), envir = pyenv)
-  pyenv$delete_df(dynamodb_table, df)
+  pyenv$delete_df(dynamo_table, df)
 }
 
 

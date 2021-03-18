@@ -14,7 +14,7 @@ get_id_table(
 )
 }
 \arguments{
-\item{dynamodb}{boto3 DynamoDB object}
+\item{dynamodb}{boto3 DynamoDB resource obtained with \code{get_dynamodb} function}
 
 \item{table_name}{character, table name}
 
