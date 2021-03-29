@@ -266,7 +266,7 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
   ) %>%
     as_tibble()
 
-  if ((nrow(df) == 0) | (is.null(df))) {
+  if (nrow(df) == 0) {
     return(NULL)
   }
 
@@ -313,12 +313,7 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
                   sort_key_name, ..1, ..2, parse = T)
   )
 
-  if (is.null(df)) {
-    return(NULL)
-  }
-
-  if (!('timestamp' %in% colnames(df))) {
-    print(df)
+  if (nrow(df) == 0) {
     return(NULL)
   }
 
