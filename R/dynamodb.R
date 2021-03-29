@@ -266,11 +266,9 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
   ) %>%
     as_tibble()
 
-  # if (is.null(sort_key_name)) {
-  #   df <- select(df, .data[[partition_key_name]], everything())
-  # } else {
-  #   df <- select(df, .data[[partition_key_name]], .data[[sort_key_name]], everything())
-  # }
+  if ((nrow(df) == 0) | (is.null(df))) {
+    return(NULL)
+  }
 
   if (!parse) {
     return( df )
@@ -305,8 +303,8 @@ query_table <- function(dynamo_table, partition_key_name, partition_key_values,
 #'
 query_timeseries_data_table <- function(dynamo_table, partition_key_name, partition_key_values,
                                         sort_key_name, start_date, end_date, tzone = 'Europe/Paris',
-                                        query_interval_days = 30, milliseconds = T, time_interval_mins = NULL,
-                                        spread_column = NULL) {
+                                        query_interval_days = 30, milliseconds = TRUE,
+                                        time_interval_mins = NULL, spread_column = 'data') {
   time_range <- adapt_date_range(start_date, end_date, tzone, query_interval_days, milliseconds)
 
   df <- pmap_dfr(
@@ -314,6 +312,10 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
     ~ query_table(dynamo_table, partition_key_name, partition_key_values,
                   sort_key_name, ..1, ..2, parse = T)
   )
+
+  if (is.null(df)) {
+    return(NULL)
+  }
 
   if (milliseconds) {
     df <- mutate(df, datetime = as_datetime(.data$timestamp/1000, tz = tzone))

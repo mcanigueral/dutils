@@ -13,9 +13,9 @@ query_timeseries_data_table(
   end_date,
   tzone = "Europe/Paris",
   query_interval_days = 30,
-  milliseconds = T,
+  milliseconds = TRUE,
   time_interval_mins = NULL,
-  spread_column = NULL
+  spread_column = "data"
 )
 }
 \arguments{
