@@ -317,6 +317,11 @@ query_timeseries_data_table <- function(dynamo_table, partition_key_name, partit
     return(NULL)
   }
 
+  if (!('timestamp' %in% colnames(df))) {
+    print(df)
+    return(NULL)
+  }
+
   if (milliseconds) {
     df <- mutate(df, datetime = as_datetime(.data$timestamp/1000, tz = tzone))
   } else {
