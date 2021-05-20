@@ -2,7 +2,7 @@
 % Please edit documentation in R/dynamodb.R
 \name{adapt_date_range}
 \alias{adapt_date_range}
-\title{Convert start and end dates to DynamoDB timestamp}
+\title{Split the period between start and end dates with a defined interval of days}
 \usage{
 adapt_date_range(
   start_date,
@@ -13,7 +13,7 @@ adapt_date_range(
 )
 }
 \arguments{
-\item{start_date}{Date, start date}
+\item{start_date}{Date, start date.}
 
 \item{end_date}{Date, end date}
 
@@ -27,5 +27,6 @@ adapt_date_range(
 tibble
 }
 \description{
-Convert start and end dates to DynamoDB timestamp
+The dates are converted to DynamoDB timestamp with function \code{date_to_timestamp},
+but the inputs \code{start_date} and \code{end_date} must be of class \code{Date} and not \code{datetime}.
 }

@@ -214,7 +214,7 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
 #' @param lon numeric, longitude coordinate
 #' @param database character, PVGIS database
 #' @param loss numeric, PV installation loss
-#' @param panels_tbl tibble, with columns `varname`, `tilt`, `azimouth` and `kWp`
+#' @param panels_tbl tibble, with columns `varname`, `tilt`, `azimuth` and `kWp`
 #'
 #' @return tibble
 #' @export

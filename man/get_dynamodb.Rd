@@ -2,7 +2,7 @@
 % Please edit documentation in R/dynamodb.R
 \name{get_dynamodb}
 \alias{get_dynamodb}
-\title{Get DynamoDB boto3 resource}
+\title{Get DynamoDB paws resource}
 \usage{
 get_dynamodb(aws_access_key_id, aws_secret_access_key, region_name)
 }
@@ -14,10 +14,10 @@ get_dynamodb(aws_access_key_id, aws_secret_access_key, region_name)
 \item{region_name}{AWS DynamoDB region name (e.g. eu-west-1)}
 }
 \value{
-boto3 DynamoDB resource
+paws DynamoDB object list
 }
 \description{
-Get DynamoDB boto3 resource
+Get DynamoDB paws resource
 }
 \details{
 To create a user with permissions go to IAM AWS service and create a new user with Programmatic access, attaching existing policies directly for a fast configuration.

@@ -24,7 +24,7 @@ get_multiple_pv_timeseries(
 
 \item{loss}{numeric, PV installation loss}
 
-\item{panels_tbl}{tibble, with columns \code{varname}, \code{tilt}, \code{azimouth} and \code{kWp}}
+\item{panels_tbl}{tibble, with columns \code{varname}, \code{tilt}, \code{azimuth} and \code{kWp}}
 }
 \value{
 tibble
