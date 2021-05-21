@@ -165,7 +165,7 @@ parse_items <- function(items, parse_item_func) {
 #'
 #' @importFrom purrr pmap_dfr
 #'
-query_timeseries_dynamodb_table <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values,
+query_dynamodb_table_timeseries <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values,
                                             sorting_key_name, start_date, end_date, parse_item_func,
                                             tzone = 'Europe/Paris', query_interval_days = 30, milliseconds = TRUE) {
 
