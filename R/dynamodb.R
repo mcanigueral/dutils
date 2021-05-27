@@ -101,12 +101,12 @@ adapt_date_range <- function(start_date, end_date, tzone = "Europe/Paris", inter
 #' @return tibble
 #' @export
 #'
-#' @importFrom purrr map map_dfr
+#' @importFrom purrr map map_dfr flatten
 #'
 #' @details Note that the amount of items is limited to 1 MB. If the items between the start and end values of the sorting key exceeds this limit,
 #' the data obtained will go from start to the limited maximum.
 #'
-query_dynamodb_table <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values, sorting_key_name, sorting_key_start, sorting_key_end, parse_item_func) {
+query_dynamodb_table <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values, sorting_key_name, sorting_key_start, sorting_key_end, parse_item_func = NULL) {
   response <- map(
     partition_key_values,
     ~ dynamodb_obj$query(
@@ -135,7 +135,7 @@ query_dynamodb_table <- function(dynamodb_obj, table_name, partition_key_name, p
   )
 
   if (is.null(parse_item_func)) {
-    return( response )
+    return( flatten(response) )
   } else {
     map_dfr(response, ~ parse_items(.x, parse_item_func))
   }
@@ -183,5 +183,9 @@ query_dynamodb_table_timeseries <- function(dynamodb_obj, table_name, partition_
     return( df )
   }
 }
+
+
+
+
 
 

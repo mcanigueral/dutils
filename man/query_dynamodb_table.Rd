@@ -12,7 +12,7 @@ query_dynamodb_table(
   sorting_key_name,
   sorting_key_start,
   sorting_key_end,
-  parse_item_func
+  parse_item_func = NULL
 )
 }
 \arguments{
