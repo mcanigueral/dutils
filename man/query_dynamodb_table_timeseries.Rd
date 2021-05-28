@@ -12,7 +12,7 @@ query_dynamodb_table_timeseries(
   sorting_key_name,
   start_date,
   end_date,
-  parse_item_func,
+  parse_item_func = NULL,
   tzone = "Europe/Paris",
   query_interval_days = 30,
   milliseconds = TRUE

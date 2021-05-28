@@ -166,7 +166,7 @@ parse_items <- function(items, parse_item_func) {
 #' @importFrom purrr pmap_dfr
 #'
 query_dynamodb_table_timeseries <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values,
-                                            sorting_key_name, start_date, end_date, parse_item_func,
+                                            sorting_key_name, start_date, end_date, parse_item_func = NULL,
                                             tzone = 'Europe/Paris', query_interval_days = 30, milliseconds = TRUE) {
 
   time_range <- adapt_date_range(start_date, end_date, tzone, query_interval_days, milliseconds)
@@ -186,6 +186,57 @@ query_dynamodb_table_timeseries <- function(dynamodb_obj, table_name, partition_
 
 
 
+#' Delete items from DynamoDB table
+#'
+#' The table must have partition and sorting key and the items deleted are within a range of the sorting key
+#'
+#' @param dynamodb_obj DynamoDB object obtained with `get_dynamodb` function
+#' @param table_name character, DynamoDB table name
+#' @param partition_key_name character, name of the partiton key of the DynamoDB Table. It has to be a string variable
+#' @param partition_key_values vector of values of the partiton key of the DynamoDB Table
+#' @param sorting_key_name character, name of the sorting key of the DynamoDB Table. It has to be a numeric variable
+#' @param sorting_key_start numeric, start value of the sorting key
+#' @param sorting_key_end  numeric, end value of the sorting key
+#'
+#' @export
+#'
+#' @importFrom purrr walk
+#'
+dynamodb_delete_items <- function(dynamodb_obj, table_name, partition_key_name, partition_key_values,
+                                  sorting_key_name, sorting_key_start, sorting_key_end) {
+  items <- query_dynamodb_table(dynamodb_obj, table_name, partition_key_name, partition_key_values,
+                                sorting_key_name, sorting_key_start, sorting_key_end)
+  walk(
+    items,
+    ~ dynamodb_obj$delete_item(
+      TableName = table_name,
+      Key = .x[c(partition_key_name, sorting_key_name)]
+    )
+  )
+}
+
+
+#' Put items to DynamoDB table
+#'
+#'
+#' @param dynamodb_obj DynamoDB object obtained with `get_dynamodb` function
+#' @param table_name character, DynamoDB table name
+#' @param items list of value-key lists, with all Keys (partition and sorting) of the table and other optional attributes.
+#' For example one item could be: `list(id = list(S = 'id123'), timestamp = list(N = 1622190385), data = list(temperature = list(N = 24.2), humidity = list(N = 32)))`
+#'
+#' @export
+#'
+#' @importFrom purrr walk
+#'
+dynamodb_put_items <- function(dynamodb_obj, table_name, items) {
+  walk(
+    items,
+    ~ dynamodb_obj$put_item(
+      TableName = table_name,
+      Item = .x
+    )
+  )
+}
 
 
 
