@@ -20,10 +20,10 @@ Imports:
     tidyr,
     purrr,
     rlang,
-    httr,
     xts,
     dygraphs
 Suggests:
+  httr,
   shiny,
   shinyWidgets,
   shinydashboard,

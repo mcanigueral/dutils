@@ -128,7 +128,6 @@ compare_kpis <- function(kpis_o, kpis_f) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom httr GET content
 #' @importFrom dplyr bind_rows
 #'
 get_tmy <- function(lat=52.370, lon=4.908) {
@@ -161,7 +160,6 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom httr GET content
 #' @importFrom dplyr bind_rows %>% mutate select filter
 #' @importFrom lubridate as_datetime minutes month year
 #' @importFrom rlang .data
