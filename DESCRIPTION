@@ -27,4 +27,5 @@ Suggests:
   shiny,
   shinyWidgets,
   shinydashboard,
+  reticulate,
   paws
