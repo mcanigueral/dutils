@@ -4,12 +4,14 @@
 \alias{increase_numeric_resolution}
 \title{Increase numeric vector resolution}
 \usage{
-increase_numeric_resolution(y, n)
+increase_numeric_resolution(y, n, method = c("interpolate", "repeat"))
 }
 \arguments{
 \item{y}{original numeric vector}
 
 \item{n}{integer, number of intra-values (counting the original value as the first one)}
+
+\item{method}{character, being \code{interpolate} or \code{repeat} as valid options}
 }
 \value{
 numeric vector
@@ -18,6 +20,16 @@ numeric vector
 Increase numeric vector resolution
 }
 \details{
-if we have a vector v = c(1, 2), then \code{increase_numeric_resolution(v, 4)}
-returns c(1, 1.25, 1.5, 1.75, 2)
+if we have a vector v = c(1, 2), and we choose the \code{interpolate} method,
+then:
+
+\code{increase_numeric_resolution(v, 4, 'interpolate')}
+
+returns \code{c(1, 1.25, 1.5, 1.75, 2)}
+
+if we choose the \code{repeat} method, then:
+
+\code{increase_numeric_resolution(v, 4, 'repeat')}
+
+returns c(1, 1, 1, 1, 2)
 }

@@ -4,12 +4,15 @@
 \alias{increase_timeseries_resolution}
 \title{Increase time resolution of a timeseries data frame}
 \usage{
-increase_timeseries_resolution(df, n)
+increase_timeseries_resolution(df, n, method = c("interpolate", "repeat"))
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
 
 \item{n}{integer, number of intra-values (counting the original value as the first one)}
+
+\item{method}{character, being \code{interpolate} or \code{repeat} as valid options.
+See \code{increase_numeric_resolution} function for more information.}
 }
 \value{
 tibble

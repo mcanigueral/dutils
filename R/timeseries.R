@@ -118,6 +118,7 @@ interpolation <- function(y1, y2, n) {
 #'
 #' @param y original numeric vector
 #' @param n integer, number of intra-values (counting the original value as the first one)
+#' @param method character, being `interpolate` or `repeat` as valid options
 #'
 #' @return numeric vector
 #' @export
@@ -126,13 +127,28 @@ interpolation <- function(y1, y2, n) {
 #' @importFrom purrr pmap simplify
 #'
 #' @details
-#' if we have a vector v = c(1, 2), then `increase_numeric_resolution(v, 4)`
-#' returns c(1, 1.25, 1.5, 1.75, 2)
-increase_numeric_resolution <- function(y, n) {
-  tibble(y1 = y, y2 = lead(y, default = 0)) %>%
-    pmap(~ interpolation(..1, ..2, n)) %>%
-    simplify() %>%
-    as.double()
+#' if we have a vector v = c(1, 2), and we choose the `interpolate` method,
+#' then:
+#'
+#' `increase_numeric_resolution(v, 4, 'interpolate')`
+#'
+#' returns `c(1, 1.25, 1.5, 1.75, 2)`
+#'
+#' if we choose the `repeat` method, then:
+#'
+#' `increase_numeric_resolution(v, 4, 'repeat')`
+#'
+#' returns c(1, 1, 1, 1, 2)
+#'
+increase_numeric_resolution <- function(y, n, method = c('interpolate', 'repeat')) {
+  if (method == 'interpolate') {
+    tibble(y1 = y, y2 = lead(y, default = 0)) %>%
+      pmap(~ interpolation(..1, ..2, n)) %>%
+      simplify() %>%
+      as.double()
+  } else {
+    rep(y, each = n)
+  }
 }
 
 #' Increase datetime vector resolution
@@ -152,17 +168,19 @@ increase_datetime_resolution <- function(y, interval_mins) {
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param n integer, number of intra-values (counting the original value as the first one)
+#' @param method character, being `interpolate` or `repeat` as valid options.
+#' See `increase_numeric_resolution` function for more information.
 #'
 #' @return tibble
 #' @export
 #'
 #' @importFrom dplyr tibble select_if %>%
 #'
-increase_timeseries_resolution <- function(df, n) {
+increase_timeseries_resolution <- function(df, n, method = c('interpolate', 'repeat')) {
   new_df <- tibble(datetime = increase_datetime_resolution(df[['datetime']], 60/n))
   numeric_df <- df %>% select_if(is.numeric)
   for (col in colnames(numeric_df)) {
-    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n)
+    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n, method)
   }
   return( new_df )
 }
