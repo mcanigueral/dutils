@@ -51,7 +51,7 @@ kpisServer <- function(id, kpis_df, kpis_values) {
               shinydashboard::infoBox(
                 title = .x[['title']],
                 value = paste(round(val[[.x[['variable']]]]/.x[['division']], .x[['digits']]), .x[['units']]),
-                subtitle = eval(parse(text=.x[['subtitle']])),
+                subtitle = stringr::str_replace(eval(parse(text=.x[['subtitle']])), 'NaN', '0'),
                 icon = icon(.x[['icon']], class = .x[['icon-class']]),
                 color = .x[['color']],
                 fill = as.logical(.x[['fill']])

@@ -96,7 +96,8 @@ get_monthly_energy_kpis <- function(df) {
     set_names(d_nest$data, d_nest$month),
     ~ get_energy_kpis(.x),
     .id = 'month'
-  )
+  ) %>%
+    mutate(month = as.integer(month))
 }
 
 

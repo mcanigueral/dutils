@@ -28,4 +28,5 @@ Suggests:
   shinyWidgets,
   shinydashboard,
   reticulate,
-  paws
+  paws,
+  stringr
