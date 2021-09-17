@@ -10,6 +10,34 @@ get_current_date <- function() {
 }
 
 
+#' Time difference start function
+#'
+#' Use this function together with `toc()` to control time spent by functions
+#'
+#' @return numeric
+#' @export
+#'
+tic <- function() {
+  assign("tic", Sys.time(), envir = baseenv())
+}
+
+#' Time difference end function
+#'
+#' Use this function together with `tic()` to control time spent by functions
+#'
+#' @param units character, one of "auto", "secs", "mins", "hours", "days" and "weeks"
+#' @param digits integer, number of decimals
+#'
+#' @return numeric
+#' @export
+#'
+toc <- function(units = "secs", digits = 2) {
+  time_diff <- round(difftime(Sys.time(), get("tic", envir = baseenv()), units = units)[[1]], digits)
+  message(paste("---- Done with", time_diff, units))
+}
+
+
+
 #' Get percentage of tibble variables
 #'
 #' The percentage is relative to the variable in `from` argument
