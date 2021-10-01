@@ -79,8 +79,10 @@ infobox_value <- function(value, tip) {
   }
 }
 
-info_tip <- function(...){
+info_tip <- function(...) {
+  css_file <- system.file("www", "tooltip.css", package = "dutils")
   shiny::tags$div(
+    shiny::tags$link(rel = "stylesheet", type = "text/css", href = css_file),
     class = "tooltip2",
     shiny::HTML('<i class="fa fa-info-circle" style="color:#4682B4; font-size: 16px;"></i>'),
     shiny::tags$span(class="tooltiptext", style = "font-size: 14px; font-weight: normal; line-height: 120%;", ...)
