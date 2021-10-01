@@ -50,7 +50,10 @@ kpisServer <- function(id, kpis_df, kpis_values) {
             shinydashboard::renderInfoBox({
               shinydashboard::infoBox(
                 title = .x[['title']],
-                value = paste(round(val[[.x[['variable']]]]/.x[['division']], .x[['digits']]), .x[['units']]),
+                value = infobox_value(
+                  paste(round(val[[.x[['variable']]]]/.x[['division']], .x[['digits']]), .x[['units']]),
+                  tip = eval(parse(text=.x[['info']]))
+                ),
                 subtitle = stringr::str_replace(eval(parse(text=.x[['subtitle']])), 'NaN', '0'),
                 icon = icon(.x[['icon']], class = .x[['icon-class']]),
                 color = .x[['color']],
@@ -61,6 +64,26 @@ kpisServer <- function(id, kpis_df, kpis_values) {
         )
       })
     }
+  )
+}
+
+
+infobox_value <- function(value, tip) {
+  if (is.null(tip)) {
+    return(value)
+  } else {
+    shiny::tags$div(
+      shiny::tags$p(value, style = "display: inline-block;vertical-align:top;margin-bottom:0"),
+      info_tip(tip, style = "display: inline-block;vertical-align:top;")
+    )
+  }
+}
+
+info_tip <- function(...){
+  shiny::tags$div(
+    class = "tooltip2",
+    shiny::HTML('<i class="fa fa-info-circle" style="color:#4682B4; font-size: 16px;"></i>'),
+    shiny::tags$span(class="tooltiptext", style = "font-size: 14px; font-weight: normal; line-height: 120%;", ...)
   )
 }
 
