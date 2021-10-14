@@ -155,6 +155,7 @@ query_table_py <- function(dynamo_table, partition_key_name, partition_key_value
 #' @param tzone character, time zone of the timeseries data
 #' @param query_interval_days integer, number of days of each query interval
 #' @param milliseconds logical, whether the sorting key is a timestamp in milliseconds or not
+#' @param parse logical, whether to parse Python objects to R objects
 #'
 #' @return tibble
 #' @export
@@ -166,13 +167,13 @@ query_table_py <- function(dynamo_table, partition_key_name, partition_key_value
 #'
 query_timeseries_data_table_py <- function(dynamo_table, partition_key_name, partition_key_values,
                                         sort_key_name, start_date, end_date, tzone = 'Europe/Paris',
-                                        query_interval_days = 30, milliseconds = T) {
+                                        query_interval_days = 30, milliseconds = T, parse = T) {
   time_range <- adapt_date_range(start_date, end_date, tzone, query_interval_days, milliseconds)
 
   df <- pmap_dfr(
     time_range,
     ~ query_table_py(dynamo_table, partition_key_name, partition_key_values,
-                  sort_key_name, ..1, ..2, parse = T)
+                  sort_key_name, ..1, ..2, parse)
   )
 
   if (nrow(df) == 0) {
