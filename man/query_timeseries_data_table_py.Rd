@@ -13,7 +13,8 @@ query_timeseries_data_table_py(
   end_date,
   tzone = "Europe/Paris",
   query_interval_days = 30,
-  milliseconds = T
+  milliseconds = T,
+  parse = T
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ query_timeseries_data_table_py(
 \item{query_interval_days}{integer, number of days of each query interval}
 
 \item{milliseconds}{logical, whether the sorting key is a timestamp in milliseconds or not}
+
+\item{parse}{logical, whether to parse Python objects to R objects}
 }
 \value{
 tibble
