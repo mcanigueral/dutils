@@ -18,7 +18,8 @@ get_current_date <- function() {
 #' @export
 #'
 tic <- function() {
-  assign("tic", Sys.time(), envir = baseenv())
+  tic <<- Sys.time()
+  # assign("tic", Sys.time(), envir = globalenv())
 }
 
 #' Time difference end function
@@ -32,7 +33,8 @@ tic <- function() {
 #' @export
 #'
 toc <- function(units = "secs", digits = 2) {
-  time_diff <- round(difftime(Sys.time(), get("tic", envir = baseenv()), units = units)[[1]], digits)
+  tic <- get("tic", envir = globalenv())
+  time_diff <- round(difftime(Sys.time(), tic, units = units)[[1]], digits)
   message(paste("---- Done with", time_diff, units))
 }
 
@@ -77,4 +79,21 @@ get_percentage <- function(tbl, from, discard = NULL, percent = TRUE, keep = FAL
     cols <- colnames(tbl)[colnames(tbl) != from]
     return( .tbl[cols] )
   }
+}
+
+
+
+#' Text with info pop-up
+#'
+#' @param ... text
+#'
+#' @export
+#'
+info_tip <- function(...) {
+  shiny::includeCSS(system.file("www", "tooltip.css", package = "dutils"))
+  shiny::tags$div(
+    class = "tooltip2",
+    shiny::HTML('<i class="fa fa-info-circle" style="color:#4682B4; font-size: 16px;"></i>'),
+    shiny::tags$span(class="tooltiptext", style = "font-size: 14px; font-weight: normal; line-height: 120%;", ...)
+  )
 }

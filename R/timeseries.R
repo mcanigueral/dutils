@@ -1,5 +1,66 @@
 # Datetime functions ------------------------------------------------------
 
+#' Convert date or datetime value to timestamp number
+#'
+#' @param date date or datetime value
+#' @param tzone character, time-zone of the current time
+#' @param milliseconds logical, whether the timestamp is in milliseconds or seconds
+#'
+#' @return numeric
+#' @export
+#'
+#' @importFrom lubridate force_tz as_datetime
+#'
+date_to_timestamp <- function(date, tzone = "Europe/Paris", milliseconds = T) {
+  timestamp <- as.integer(
+    force_tz(
+      as_datetime(date, tz = "UTC"),
+      tzone
+    )
+  )
+  if (milliseconds) {
+    return ( timestamp*1000 )
+  } else {
+    return( timestamp )
+  }
+}
+
+
+#' Split the period between start and end dates with a defined interval of days
+#'
+#' The dates are converted to timestamp with function `date_to_timestamp`,
+#' but the inputs `start_date` and `end_date` must be of class `Date` and not `datetime`.
+#'
+#' @param start_date Date, start date.
+#' @param end_date Date, end date
+#' @param tzone character, time zone of the timeseries data
+#' @param interval_days integer, number of days of each query interval
+#' @param milliseconds logical, whether the timestamp variable is in milliseconds or not
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr tibble select %>%
+#' @importFrom rlang .data
+#' @importFrom lubridate days as_datetime
+#'
+adapt_date_range <- function(start_date, end_date, tzone = "Europe/Paris", interval_days = 30, milliseconds = T) {
+  if (as.integer(end_date - start_date, units = 'days') > interval_days) {
+    tibble(
+      start.date = seq.Date(start_date, end_date, by = paste(interval_days, 'days')),
+      end.date = .data$start.date + days(interval_days),
+      start.timestamp = date_to_timestamp(.data$start.date, tzone, milliseconds),
+      end.timestamp = date_to_timestamp(.data$end.date, tzone, milliseconds)
+    ) %>%
+      select(.data$start.timestamp, .data$end.timestamp)
+  } else {
+    tibble(
+      start.timestamp = date_to_timestamp(start_date, tzone, milliseconds),
+      end.timestamp = date_to_timestamp(end_date, tzone, milliseconds)
+    )
+  }
+}
+
 #' Datetime sequence
 #'
 #' @param year integer, year of the datetime sequence
@@ -60,6 +121,46 @@ date_to_datetime_with_tz <- function(date, tzone="UTC") {
   floor_date(with_tz(date, tzone), 'day')
 }
 
+
+
+# Preprocessing ----------------------------------------------------------
+
+#' Fill from past values
+#'
+#' If back index ( NA index - `back`) is lower than zero then the it is filled with the first value of the data frame.
+#' If the value in the back index is also NA, it iterates backwards until finding a non-NA value.
+#'
+#' @param tbl tibble or data.frame, with NA values in some columns
+#' @param colnames character or vector of characters, column names with NA values
+#' @param back integer, number of indices (rows) to go back and get the filling value
+#'
+#' @return tibble or data.frame
+#' @export
+#'
+fill_from_past <- function(tbl, colnames, back=24) {
+  tbl_to_fill <- tbl[colnames]
+  for (col in colnames) {
+    na_idx <- which(is.na(tbl_to_fill[col]))
+    for (idx in na_idx) {
+      back_idx <- idx
+      # if (back_idx <= 0) back_idx <- 1
+      while (is.na(tbl_to_fill[back_idx, col])) {
+        back_idx <- back_idx - back
+        if (back_idx <= 0) {
+          back_idx <- 1
+          break
+        }
+      }
+      new_value <- tbl_to_fill[back_idx, col]
+      if (is.na(new_value)) {
+        message(paste("Could not find numeric values in the past for column", col, "and index", idx))
+      }
+      tbl_to_fill[idx, col] <- tbl_to_fill[back_idx, col]
+    }
+  }
+  tbl[colnames] <- tbl_to_fill
+  return( tbl )
+}
 
 
 #' Fill NA values of a datetime sequence vector
@@ -218,6 +319,8 @@ decrease_resolution <- function(df, resolution_mins, value = c('average', 'first
   }
 }
 
+
+# Processing --------------------------------------------------------------
 
 #' Week date from datetime value
 #'
