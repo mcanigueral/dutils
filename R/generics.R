@@ -1,14 +1,10 @@
 
+# Package environment -----------------------------------------------------------------
 
-#' Get current date from Internet, not from local machine
-#'
-#' @return date
-#' @export
-#'
-get_current_date <- function() {
-  Sys.Date()
-}
+dutils_env <- new.env()
 
+
+# Tic-toc -----------------------------------------------------------------
 
 #' Time difference start function
 #'
@@ -18,8 +14,7 @@ get_current_date <- function() {
 #' @export
 #'
 tic <- function() {
-  tic <<- Sys.time()
-  # assign("tic", Sys.time(), envir = globalenv())
+  assign("tic", Sys.time(), envir = dutils_env)
 }
 
 #' Time difference end function
@@ -33,12 +28,13 @@ tic <- function() {
 #' @export
 #'
 toc <- function(units = "secs", digits = 2) {
-  tic <- get("tic", envir = globalenv())
+  tic <- get("tic", envir = dutils_env)
   time_diff <- round(difftime(Sys.time(), tic, units = units)[[1]], digits)
   message(paste("---- Done with", time_diff, units))
 }
 
 
+# Get percentage ----------------------------------------------------------
 
 #' Get percentage of tibble variables
 #'
@@ -82,6 +78,8 @@ get_percentage <- function(tbl, from, discard = NULL, percent = TRUE, keep = FAL
 }
 
 
+
+# Info text pop-up --------------------------------------------------------
 
 #' Text with info pop-up
 #'
