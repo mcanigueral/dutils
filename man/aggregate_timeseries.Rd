@@ -4,12 +4,14 @@
 \alias{aggregate_timeseries}
 \title{Aggregate multiple timeseries columns to a single one}
 \usage{
-aggregate_timeseries(df, varname)
+aggregate_timeseries(df, varname, omit = NULL)
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
 
 \item{varname}{character, name of the aggregation column}
+
+\item{omit}{character, name of columns to not aggregate}
 }
 \value{
 tibble

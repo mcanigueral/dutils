@@ -373,13 +373,20 @@ get_week_total <- function(df) {
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param varname character, name of the aggregation column
+#' @param omit character, name of columns to not aggregate
 #'
 #' @return tibble
 #' @export
 #'
-aggregate_timeseries <- function(df, varname) {
-  tbl <- df[1]
-  tbl[[varname]] <- rowSums(df[-1])
+aggregate_timeseries <- function(df, varname, omit = NULL) {
+  tbl <- df['datetime']
+  omit_col_n <- which(colnames(df) %in% c('datetime', omit))
+  tbl[[varname]] <- rowSums(df[-omit_col_n])
+  if (!is.null(omit)) {
+    for (omit_var in omit) {
+      tbl[[omit_var]] <- df[[omit_var]]
+    }
+  }
   return( tbl )
 }
 
