@@ -95,3 +95,20 @@ info_tip <- function(...) {
     shiny::tags$span(class="tooltiptext", style = "font-size: 14px; font-weight: normal; line-height: 120%;", ...)
   )
 }
+
+
+
+# Preprocessing -----------------------------------------------------------
+
+#' Round to nearest interval
+#'
+#' @param dbl number to round
+#' @param interval rounding interval
+#'
+#' @return numeric value
+#' @export
+#'
+round_to_interval <- function(dbl, interval) {
+  round(dbl/interval)*interval
+}
+
