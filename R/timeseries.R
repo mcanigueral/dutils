@@ -335,7 +335,7 @@ fill_down_until <- function(data, vars, max_timeslots = 1) {
 
   for (var_name in vars) {
     var_values <- data[[var_name]]
-    na_idxs <- which(is.na(var_values) & !is.na(lag(var_values, default = 0)))
+    na_idxs <- which(is.na(var_values) & !is.na(dplyr::lag(var_values)))
     na_idxs <- na_idxs[na_idxs != 1]
     var_values_filled <- var_values
     for (na_idx in na_idxs) {
