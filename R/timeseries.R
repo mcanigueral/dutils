@@ -320,6 +320,38 @@ decrease_resolution <- function(df, resolution_mins, value = c('average', 'first
 }
 
 
+#' Fill down tibble columns until a maximum number of time slots
+#'
+#' @param data data.frame or tibble
+#' @param vars character, names of columns to fill
+#' @param max_timeslots integer, maximum number of time slots to fill
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom dplyr lag
+#'
+fill_down_until <- function(data, vars, max_timeslots = 1) {
+
+  for (var_name in vars) {
+    var_values <- data[[var_name]]
+    na_idxs <- which(is.na(var_values) & !is.na(lag(var_values, default = 0)))
+    na_idxs <- na_idxs[na_idxs != 1]
+    var_values_filled <- var_values
+    for (na_idx in na_idxs) {
+      for (i in na_idx:(na_idx+max_timeslots-1)) {
+        if (!is.na(var_values_filled[i]) | length(var_values_filled) < i)
+          break
+        var_values_filled[i] <- var_values_filled[na_idx-1]
+      }
+    }
+    data[[var_name]] <- var_values_filled
+  }
+
+  return( data )
+}
+
+
 # Processing --------------------------------------------------------------
 
 #' Week date from datetime value
