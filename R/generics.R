@@ -79,23 +79,35 @@ get_percentage <- function(tbl, from, discard = NULL, percent = TRUE, keep = FAL
 
 
 
-# Info text pop-up --------------------------------------------------------
+# Tooltip --------------------------------------------------------
 
-#' Text with info pop-up
+#' Add info icon with a pop-up tip to a label
 #'
-#' @param ... text
+#' @param label character, label
+#' @param tip character, info text
 #'
 #' @export
 #'
-info_tip <- function(...) {
-  shiny::includeCSS(system.file("www", "tooltip.css", package = "dutils"))
-  shiny::tags$div(
-    class = "tooltip2",
-    shiny::HTML('<i class="fa fa-info-circle" style="color:#4682B4; font-size: 16px;"></i>'),
-    shiny::tags$span(class="tooltiptext", style = "font-size: 14px; font-weight: normal; line-height: 120%;", ...)
-  )
+text_info <- function (label, tip) {
+  if (is.null(tip)) {
+    return(label)
+  } else {
+    shiny::tags$div(
+      shiny::includeCSS(system.file("www", "tooltip.css", package = "dutils")),
+      shiny::tags$p(label, style = "display: inline-block;vertical-align:top;margin-bottom:0"),
+      shiny::tags$div(
+        class = "tooltip2",
+        style = "display: inline-block;vertical-align:top;",
+        shiny::HTML('<i class="fa fa-info-circle" style="color:#4682B4; font-size: 16px;"></i>'),
+        shiny::tags$span(
+          class="tooltiptext",
+          style = "font-size: 14px; font-weight: normal; line-height: 120%;",
+          shiny::HTML(tip)
+        )
+      )
+    )
+  }
 }
-
 
 
 # Preprocessing -----------------------------------------------------------
