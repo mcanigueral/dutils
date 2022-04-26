@@ -30,7 +30,7 @@ tic <- function() {
 toc <- function(units = "secs", digits = 2) {
   tic <- get("tic", envir = dutils_env)
   time_diff <- round(difftime(Sys.time(), tic, units = units)[[1]], digits)
-  message(paste("---- Done with", time_diff, units))
+  message(paste("---- Done in", time_diff, units))
 }
 
 
