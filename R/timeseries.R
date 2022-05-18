@@ -255,20 +255,20 @@ increase_numeric_resolution <- function(y, n, method = c('interpolate', 'repeat'
 #' Increase datetime vector resolution
 #'
 #' @param y vector of datetime values
-#' @param interval_mins integer, interval of minutes between two consecutive datetime values
+#' @param resolution_mins integer, interval of minutes between two consecutive datetime values
 #'
 #' @return datetime vector
 #' @export
 #'
 #' @importFrom lubridate minutes as_datetime tz
-increase_datetime_resolution <- function(y, interval_mins) {
-  seq.POSIXt(y[1], y[length(y)]+(y[2]-y[1])-minutes(interval_mins), by = paste(interval_mins, 'min')) %>% as_datetime(tz = tz(y))
+increase_datetime_resolution <- function(y, resolution_mins) {
+  seq.POSIXt(y[1], y[length(y)]+(y[2]-y[1])-minutes(resolution_mins), by = paste(resolution_mins, 'min')) %>% as_datetime(tz = tz(y))
 }
 
 #' Increase time resolution of a timeseries data frame
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
-#' @param n integer, number of intra-values (counting the original value as the first one)
+#' @param resolution_mins integer, interval of minutes between two consecutive datetime values
 #' @param method character, being `interpolate` or `repeat` as valid options.
 #' See `increase_numeric_resolution` function for more information.
 #'
@@ -277,21 +277,61 @@ increase_datetime_resolution <- function(y, interval_mins) {
 #'
 #' @importFrom dplyr tibble select_if %>%
 #'
-increase_timeseries_resolution <- function(df, n, method = c('interpolate', 'repeat')) {
-  new_df <- tibble(datetime = increase_datetime_resolution(df[['datetime']], 60/n))
+increase_timeseries_resolution <- function(df, resolution_mins, method = c('interpolate', 'repeat')) {
+  new_df <- tibble(datetime = increase_datetime_resolution(df[['datetime']], resolution_mins))
   numeric_df <- df %>% select_if(is.numeric)
   for (col in colnames(numeric_df)) {
-    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n, method)
+    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n = 60/resolution_mins, method)
   }
   return( new_df )
 }
 
 
+#' Decrease resolution of a numeric vector
+#'
+#' @param y original numeric vector
+#' @param n integer, number of intra-values (counting the original value as the first one)
+#' @param method character, being `average` or `first` as valid options
+#'
+#' @return numeric vector
+#' @export
+#'
+#' @importFrom dplyr %>% group_by summarise pull
+#' @importFrom tibble tibble
+#' @importFrom rlang .data
+#'
+decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
+  if ((y%%n) > 0) {
+    message("Error decreasing resolution: the original vector should have a length multiple of `n`.")
+    return(NULL)
+  }
+
+  if (method == 'average') {
+    return(
+      tibble(
+        idx = rep(seq(1, y/n), each = n),
+        y = y
+      ) %>%
+        group_by(.data$idx) %>%
+        summarise(y = mean(y)) %>%
+        pull(y) %>%
+        as.numeric()
+    )
+  } else if (method == 'first') {
+    return(
+      y[seq(1, length(y), n)]
+    )
+  } else {
+    message("Error decreasing resolution: method not valid.")
+    return( NULL )
+  }
+}
+
 #' Decrease time resolution of timeseries data frame
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param resolution_mins integer, interval of minutes between two consecutive datetime values
-#' @param value character being 'average' or 'first'
+#' @param method character being 'average' or 'first'
 #'
 #' @return tibble
 #' @export
@@ -300,16 +340,16 @@ increase_timeseries_resolution <- function(df, n, method = c('interpolate', 'rep
 #' @importFrom lubridate floor_date
 #' @importFrom rlang .data
 #'
-decrease_resolution <- function(df, resolution_mins, value = c('average', 'first')) {
+decrease_timeseries_resolution <- function(df, resolution_mins, method = c('average', 'first')) {
   df2 <- df %>%
     mutate(datetime = floor_date(.data$datetime, paste(resolution_mins, 'minute')))
-  if (value == 'average') {
+  if (method == 'average') {
     return(
       df2 %>%
         group_by(.data$datetime) %>%
         summarise_all(mean)
     )
-  } else if (value == 'first') {
+  } else if (method == 'first') {
     return(
       df2 %>%
         distinct(.data$datetime, .keep_all = T)

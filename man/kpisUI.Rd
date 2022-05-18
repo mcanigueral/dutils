@@ -10,7 +10,7 @@ kpisUI(id)
 \item{id}{character, module ID}
 }
 \value{
-shiny UI tagList
+shiny UI
 }
 \description{
 UI functions of kpis module
