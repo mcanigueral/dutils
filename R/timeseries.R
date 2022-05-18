@@ -301,7 +301,7 @@ increase_timeseries_resolution <- function(df, resolution_mins, method = c('inte
 #' @importFrom rlang .data
 #'
 decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
-  if ((y%%n) > 0) {
+  if ((length(y)%%n) > 0) {
     message("Error decreasing resolution: the original vector should have a length multiple of `n`.")
     return(NULL)
   }
@@ -309,7 +309,7 @@ decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
   if (method == 'average') {
     return(
       tibble(
-        idx = rep(seq(1, y/n), each = n),
+        idx = rep(seq(1, length(y)/n), each = n),
         y = y
       ) %>%
         group_by(.data$idx) %>%
