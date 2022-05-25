@@ -427,15 +427,24 @@ get_weektime_from_datetime <- function(dttm) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>% mutate select group_by summarise_all
+#' @importFrom dplyr %>% mutate select group_by summarise_all mutate_if
 #' @importFrom rlang .data
 #'
 get_week_total <- function(df) {
+  resolution <- difftime(df$datetime[2], df$datetime[1], units = "mins")[[1]]
   df %>%
-    mutate(week = get_week_from_datetime(.data$datetime)) %>%
-    select(-"datetime") %>%
-    group_by(.data$week) %>%
-    summarise_all(sum)
+    mutate_if(
+      is.numeric,
+      `*`,
+      resolution/60
+    ) %>%
+    group_by(
+      week = get_week_from_datetime(.data$datetime)
+    ) %>%
+    summarise_if(
+      is.numeric,
+      sum
+    )
 }
 
 
