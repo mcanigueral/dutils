@@ -427,7 +427,7 @@ get_weektime_from_datetime <- function(dttm) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>% mutate select group_by summarise_all mutate_if
+#' @importFrom dplyr %>% mutate select group_by summarise_if mutate_if
 #' @importFrom rlang .data
 #'
 get_week_total <- function(df) {
