@@ -290,10 +290,11 @@ increase_datetime_resolution <- function(y, resolution_mins) {
 #' @importFrom dplyr tibble select_if %>%
 #'
 increase_timeseries_resolution <- function(df, resolution_mins, method = c('interpolate', 'repeat')) {
-  new_df <- tibble(datetime = increase_datetime_resolution(df[['datetime']], resolution_mins))
+  new_df <- tibble(datetime = increase_datetime_resolution(df$datetime, resolution_mins))
+  current_resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
   numeric_df <- df %>% select_if(is.numeric)
   for (col in colnames(numeric_df)) {
-    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n = 60/resolution_mins, method)
+    new_df[[col]] <- increase_numeric_resolution(numeric_df[[col]], n = current_resolution/resolution_mins, method)
   }
   return( new_df )
 }

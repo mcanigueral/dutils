@@ -131,6 +131,10 @@ update_components_by_inputs <- function(df, inputs, prefix, input_factor=1) {
   if (length(inputs) == 0) return( df )
   for (name in names(inputs)) {
     colname <- strsplit(name, prefix)[[1]][2]
+    if (!(colname %in% colnames(df))) {
+      message(paste0("Warning: there is not any profile '", name, "'"))
+      next
+    }
     df[[colname]] <- df[[colname]]*inputs[[name]]*input_factor
   }
   return( df )
