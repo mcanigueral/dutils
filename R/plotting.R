@@ -34,7 +34,7 @@ df_to_ts <- function(df) {
 #'
 format_dygraph <- function(dyplot, css_file=NULL, ...) {
   dyplot <- dyplot %>%
-    dyLegend(show = "onmouseover") %>%
+    dyLegend(show = "always") %>%
     dyOptions(retainDateWindow = TRUE,
               useDataTimezone = TRUE,
               ...)
