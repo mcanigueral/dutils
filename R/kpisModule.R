@@ -57,7 +57,7 @@ kpisServer <- function(id, kpis_df, kpis_values) {
                   tip = eval(parse(text=.x[['info']]))
                 ),
                 subtitle = stringr::str_replace(eval(parse(text=.x[['subtitle']])), 'NaN', '0'),
-                icon = icon(.x[['icon']], class = .x[['icon-class']]),
+                icon = icon(.x[['icon']], class = .x[['icon-class']], verify_fa = FALSE),
                 color = .x[['color']],
                 fill = as.logical(.x[['fill']])
               )
