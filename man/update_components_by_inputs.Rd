@@ -4,16 +4,12 @@
 \alias{update_components_by_inputs}
 \title{Update a time-series column according to component input}
 \usage{
-update_components_by_inputs(df, inputs, prefix, input_factor = 1)
+update_components_by_inputs(df, inputs)
 }
 \arguments{
 \item{df}{data.frame or tibble, being \code{datetime} the first column followed by numeric and UNITARY variables}
 
 \item{inputs}{named list with the name and size of each component}
-
-\item{prefix}{character, prefix of all inputs names}
-
-\item{input_factor}{numeric, factor to apply to each input value when multiplying to the unitary profile.}
 }
 \value{
 tibble, resulting of multiplying unitary vectors by it's corresponding component size
@@ -22,7 +18,5 @@ tibble, resulting of multiplying unitary vectors by it's corresponding component
 Update a time-series column according to component input
 }
 \details{
-The names of \code{inputs} parameter should correspond to \code{df} variables after splitting the \code{suffix}.
-In other words: \code{inputs} = \code{prefix} + \code{names(df)} (of course without considering \code{datetime} column in \code{df})
-The returned tibble is the result of \verb{ df` * `inputs` * `prefix}
+The names of \code{inputs} parameter must correspond to \code{df} variables
 }

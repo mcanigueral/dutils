@@ -10,6 +10,7 @@ dyplot(
   xlab = NULL,
   ylab = NULL,
   group = NULL,
+  legend_width = 250,
   format = TRUE,
   css_file = NULL,
   width = NULL,
@@ -27,6 +28,8 @@ dyplot(
 \item{ylab}{character, Y axis label (accepts HTML code)}
 
 \item{group}{character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.}
+
+\item{legend_width}{integer, width (in pixels) of the div which shows the legend.}
 
 \item{format}{logical, whether to format dygraph with custom CSS file}
 

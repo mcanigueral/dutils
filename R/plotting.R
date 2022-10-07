@@ -27,14 +27,13 @@ df_to_ts <- function(df) {
 #' @export
 #'
 #' @importFrom dplyr %>%
-#' @importFrom dygraphs dyLegend dyOptions dyCSS
+#' @importFrom dygraphs dyOptions dyCSS
 #'
 #' @details
 #' Atention! By default this function applies custom CSS file.
 #'
 format_dygraph <- function(dyplot, css_file=NULL, ...) {
   dyplot <- dyplot %>%
-    dyLegend(show = "always") %>%
     dyOptions(retainDateWindow = TRUE,
               useDataTimezone = TRUE,
               ...)
@@ -55,6 +54,7 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #' @param xlab character, X axis label (accepts HTML code)
 #' @param ylab character, Y axis label (accepts HTML code)
 #' @param group character, dygraphs group to associate this plot with. The x-axis zoom level of dygraphs plots within a group is automatically synchronized.
+#' @param legend_width integer, width (in pixels) of the div which shows the legend.
 #' @param format logical, whether to format dygraph with custom CSS file
 #' @param css_file character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph. Only used when `format` is `TRUE`.
 #' @param width Width in pixels (optional, defaults to automatic sizing)
@@ -64,10 +64,11 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #' @return dygraph
 #' @export
 #'
-#' @importFrom dygraphs dygraph
+#' @importFrom dygraphs dygraph dyLegend
 #'
-dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, format = TRUE, css_file=NULL, width = NULL, height = NULL, ...) {
-  dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height)
+dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, legend_width = 250, format = TRUE, css_file=NULL, width = NULL, height = NULL, ...) {
+  dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height) %>%
+    dyLegend(show = "always", width = legend_width) %>%
   if (!format) {
     return( dyplot )
   } else {

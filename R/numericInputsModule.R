@@ -116,26 +116,21 @@ get_inputs_valid_values <- function (inputs_conf, inputs_list) {
 #'
 #' @param df data.frame or tibble, being `datetime` the first column followed by numeric and UNITARY variables
 #' @param inputs named list with the name and size of each component
-#' @param prefix character, prefix of all inputs names
-#' @param input_factor numeric, factor to apply to each input value when multiplying to the unitary profile.
 #'
 #' @return tibble, resulting of multiplying unitary vectors by it's corresponding component size
 #' @export
 #'
 #' @details
-#' The names of `inputs` parameter should correspond to `df` variables after splitting the `suffix`.
-#' In other words: `inputs` = `prefix` + `names(df)` (of course without considering `datetime` column in `df`)
-#' The returned tibble is the result of `` df` * `inputs` * `prefix``
+#' The names of `inputs` parameter must correspond to `df` variables
 #'
-update_components_by_inputs <- function(df, inputs, prefix, input_factor=1) {
+update_components_by_inputs <- function(df, inputs) {
   if (length(inputs) == 0) return( df )
   for (name in names(inputs)) {
-    colname <- strsplit(name, prefix)[[1]][2]
-    if (!(colname %in% colnames(df))) {
+    if (!(name %in% colnames(df))) {
       message(paste0("Warning: there is not any profile '", name, "'"))
       next
     }
-    df[[colname]] <- df[[colname]]*inputs[[name]]*input_factor
+    df[[name]] <- df[[name]]*inputs[[name]]
   }
   return( df )
 }
