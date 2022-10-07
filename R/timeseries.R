@@ -135,6 +135,43 @@ get_time_resolution <- function(dttm_seq, units = 'mins') {
 }
 
 
+#' Adapt the timezone of a time series dataframe
+#'
+#' @param df tibble with first column being `datetime`
+#' @param tz_in character, time zone of the parameter `df`
+#' @param tz_out character, time zone of the desired df
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom lubridate year with_tz year<-
+#' @importFrom dplyr %>% mutate filter tibble left_join bind_rows arrange
+#' @importFrom rlang .data
+#' @importFrom tidyr drop_na
+#'
+adapt_df_timezone <- function(df, tz_in="UTC", tz_out="Europe/Amsterdam") {
+  df_year <- unique(year(df$datetime))
+  datetime_seq_out <- get_datetime_seq(df_year, tz_out, fullyear = T, resolution_mins = 60)
+
+  df_tz_out <- df %>% mutate(datetime = with_tz(.data$datetime, tz_out))
+  df_tz_out_year_shift <- df_tz_out %>%
+    filter(year(.data$datetime) != df_year)
+  year(df_tz_out_year_shift$datetime) <- df_year
+
+  df_out <- tibble(
+    datetime = datetime_seq_out
+  ) %>%
+    left_join(
+      df_tz_out, by = 'datetime'
+    ) %>%
+    drop_na() %>%
+    bind_rows(df_tz_out_year_shift) %>%
+    arrange(.data$datetime)
+
+  return( df_out )
+}
+
+
 # Preprocessing ----------------------------------------------------------
 
 #' Fill from past values
