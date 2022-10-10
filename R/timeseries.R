@@ -73,9 +73,9 @@ adapt_date_range <- function(start_date, end_date, tzone = "Europe/Paris", inter
 #' @return vector of datetime values
 #' @export
 #'
-#' @importFrom lubridate as_datetime dmy force_tz minutes
+#' @importFrom lubridate as_datetime dmy round_date minutes dmy_hm
 #'
-get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = FALSE, start_date = NULL, end_date = NULL) {
+get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = TRUE, start_date = NULL, end_date = NULL) {
   if (!fullyear & is.null(start_date) & is.null(end_date)) {
     message( "if start_date and end_date are not provided, fullyear must be TRUE" )
     return( NULL )
@@ -83,8 +83,8 @@ get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = FALSE, sta
   if (fullyear) {
     return(
       seq.POSIXt(
-        from = force_tz(as_datetime(dmy(paste0("0101", year))), tzone = tzone),
-        to = force_tz(as_datetime(dmy(paste0("0101", year+1))), tzone = tzone) - minutes(resolution_mins),
+        from = dmy_hm(paste0("01/01/", year, " 00:00"), tz = tzone),
+        to = dmy_hm(paste0("01/01/", year+1, " 00:00"), tz = tzone) - minutes(resolution_mins),
         by = paste(resolution_mins, "min")
       )
     )
@@ -95,8 +95,8 @@ get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = FALSE, sta
     }
     return(
       seq.POSIXt(
-        from = force_tz(as_datetime(start_date), tzone = tzone),
-        to = force_tz(as_datetime(end_date), tzone = tzone) - minutes(resolution_mins),
+        from = round_date(as_datetime(start_date), 'day'),
+        to = round_date(as_datetime(end_date, tz = tzone), 'day') - minutes(resolution_mins),
         by = paste(resolution_mins, "min")
       )
     )
@@ -138,7 +138,6 @@ get_time_resolution <- function(dttm_seq, units = 'mins') {
 #' Adapt the timezone of a time series dataframe
 #'
 #' @param df tibble with first column being `datetime`
-#' @param tz_in character, time zone of the parameter `df`
 #' @param tz_out character, time zone of the desired df
 #'
 #' @return tibble
@@ -149,9 +148,18 @@ get_time_resolution <- function(dttm_seq, units = 'mins') {
 #' @importFrom rlang .data
 #' @importFrom tidyr drop_na
 #'
-adapt_df_timezone <- function(df, tz_in="UTC", tz_out="Europe/Amsterdam") {
+adapt_df_timezone <- function(df, tz_out="Europe/Amsterdam") {
   df_year <- unique(year(df$datetime))
-  datetime_seq_out <- get_datetime_seq(df_year, tz_out, fullyear = T, resolution_mins = 60)
+  if (length(df_year) > 1) {
+    message("Warning: more than one year in date time sequence of data")
+  }
+  df_resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
+
+  datetime_seq_out <- get_datetime_seq(
+    year = df_year, tzone = tz_out,
+    resolution_mins = df_resolution,
+    fullyear = T
+  )
 
   df_tz_out <- df %>% mutate(datetime = with_tz(.data$datetime, tz_out))
   df_tz_out_year_shift <- df_tz_out %>%

@@ -8,7 +8,7 @@ get_datetime_seq(
   year,
   tzone,
   resolution_mins,
-  fullyear = FALSE,
+  fullyear = TRUE,
   start_date = NULL,
   end_date = NULL
 )

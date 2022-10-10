@@ -4,12 +4,10 @@
 \alias{adapt_df_timezone}
 \title{Adapt the timezone of a time series dataframe}
 \usage{
-adapt_df_timezone(df, tz_in = "UTC", tz_out = "Europe/Amsterdam")
+adapt_df_timezone(df, tz_out = "Europe/Amsterdam")
 }
 \arguments{
 \item{df}{tibble with first column being \code{datetime}}
-
-\item{tz_in}{character, time zone of the parameter \code{df}}
 
 \item{tz_out}{character, time zone of the desired df}
 }
