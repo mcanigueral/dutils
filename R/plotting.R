@@ -68,7 +68,7 @@ format_dygraph <- function(dyplot, css_file=NULL, ...) {
 #'
 dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, legend_width = 250, format = TRUE, css_file=NULL, width = NULL, height = NULL, ...) {
   dyplot <- dygraph(df_to_ts(df), main = title, xlab = xlab, ylab = ylab, group = group, width = width, height = height) %>%
-    dyLegend(show = "always", width = legend_width) %>%
+    dyLegend(show = "always", width = legend_width)
   if (!format) {
     return( dyplot )
   } else {
