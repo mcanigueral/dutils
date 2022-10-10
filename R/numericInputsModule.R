@@ -124,7 +124,7 @@ get_inputs_valid_values <- function (inputs_conf, inputs_list) {
 #' The names of `inputs` parameter must correspond to `df` variables
 #'
 update_components_by_inputs <- function(df, inputs) {
-  if (length(inputs) == 0) return( df )
+  if (length(inputs) == 0) return( NULL )
   for (name in names(inputs)) {
     if (!(name %in% colnames(df))) {
       message(paste0("Warning: there is not any profile '", name, "'"))
