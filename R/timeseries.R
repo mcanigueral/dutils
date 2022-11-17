@@ -83,8 +83,8 @@ get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = TRUE, star
   if (fullyear) {
     return(
       seq.POSIXt(
-        from = dmy_hm(paste0("01/01/", year, " 00:00"), tz = tzone),
-        to = dmy_hm(paste0("01/01/", year+1, " 00:00"), tz = tzone) - minutes(resolution_mins),
+        from = dmy(paste0("01/01/", year), tz = tzone),
+        to = dmy(paste0("01/01/", year+1), tz = tzone) - minutes(resolution_mins),
         by = paste(resolution_mins, "min")
       )
     )
@@ -95,8 +95,8 @@ get_datetime_seq <- function(year, tzone, resolution_mins, fullyear = TRUE, star
     }
     return(
       seq.POSIXt(
-        from = round_date(as_datetime(start_date), 'day'),
-        to = round_date(as_datetime(end_date, tz = tzone), 'day') - minutes(resolution_mins),
+        from = as_datetime(start_date, tz = tzone),
+        to = as_datetime(end_date, tz = tzone) - minutes(resolution_mins),
         by = paste(resolution_mins, "min")
       )
     )
