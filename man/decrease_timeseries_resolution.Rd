@@ -7,7 +7,7 @@
 decrease_timeseries_resolution(
   df,
   resolution_mins,
-  method = c("average", "first")
+  method = c("average", "first", "sum")
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ decrease_timeseries_resolution(
 
 \item{resolution_mins}{integer, interval of minutes between two consecutive datetime values}
 
-\item{method}{character being 'average' or 'first'}
+\item{method}{character, being \code{average}, \code{first} or \code{sum} as valid options}
 }
 \value{
 tibble

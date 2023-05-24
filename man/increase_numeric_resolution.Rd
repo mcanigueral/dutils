@@ -4,14 +4,18 @@
 \alias{increase_numeric_resolution}
 \title{Increase numeric vector resolution}
 \usage{
-increase_numeric_resolution(y, n, method = c("interpolate", "repeat"))
+increase_numeric_resolution(
+  y,
+  n,
+  method = c("interpolate", "repeat", "divide")
+)
 }
 \arguments{
 \item{y}{original numeric vector}
 
 \item{n}{integer, number of intra-values (counting the original value as the first one)}
 
-\item{method}{character, being \code{interpolate} or \code{repeat} as valid options}
+\item{method}{character, being \code{interpolate}, \code{repeat} or \code{divide} as valid options}
 }
 \value{
 numeric vector

@@ -7,7 +7,7 @@
 increase_timeseries_resolution(
   df,
   resolution_mins,
-  method = c("interpolate", "repeat")
+  method = c("interpolate", "repeat", "divide")
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ increase_timeseries_resolution(
 
 \item{resolution_mins}{integer, interval of minutes between two consecutive datetime values}
 
-\item{method}{character, being \code{interpolate} or \code{repeat} as valid options.
+\item{method}{character, being \code{interpolate}, \code{repeat} or \code{divide} as valid options.
 See \code{increase_numeric_resolution} function for more information.}
 }
 \value{

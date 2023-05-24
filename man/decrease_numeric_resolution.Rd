@@ -4,14 +4,14 @@
 \alias{decrease_numeric_resolution}
 \title{Decrease resolution of a numeric vector}
 \usage{
-decrease_numeric_resolution(y, n, method = c("average", "first"))
+decrease_numeric_resolution(y, n, method = c("average", "first", "sum"))
 }
 \arguments{
 \item{y}{original numeric vector}
 
 \item{n}{integer, number of intra-values (counting the original value as the first one)}
 
-\item{method}{character, being \code{average} or \code{first} as valid options}
+\item{method}{character, being \code{average}, \code{first} or \code{sum} as valid options}
 }
 \value{
 numeric vector

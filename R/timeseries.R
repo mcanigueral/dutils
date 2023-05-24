@@ -276,7 +276,7 @@ interpolation <- function(y1, y2, n) {
 #'
 #' @param y original numeric vector
 #' @param n integer, number of intra-values (counting the original value as the first one)
-#' @param method character, being `interpolate` or `repeat` as valid options
+#' @param method character, being `interpolate`, `repeat` or `divide` as valid options
 #'
 #' @return numeric vector
 #' @export
@@ -298,14 +298,19 @@ interpolation <- function(y1, y2, n) {
 #'
 #' returns c(1, 1, 1, 1, 2)
 #'
-increase_numeric_resolution <- function(y, n, method = c('interpolate', 'repeat')) {
+increase_numeric_resolution <- function(y, n, method = c('interpolate', 'repeat', 'divide')) {
   if (method == 'interpolate') {
     tibble(y1 = y, y2 = lead(y, default = 0)) %>%
       pmap(~ interpolation(..1, ..2, n)) %>%
       simplify() %>%
       as.double()
-  } else {
+  } else if (method == 'repeat') {
     rep(y, each = n)
+  } else if (method == 'divide') {
+    rep(y/n, each = n)
+  } else {
+    message("Error: method not allowed.")
+    return( NULL )
   }
 }
 
@@ -326,7 +331,7 @@ increase_datetime_resolution <- function(y, resolution_mins) {
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param resolution_mins integer, interval of minutes between two consecutive datetime values
-#' @param method character, being `interpolate` or `repeat` as valid options.
+#' @param method character, being `interpolate`, `repeat` or `divide` as valid options.
 #' See `increase_numeric_resolution` function for more information.
 #'
 #' @return tibble
@@ -334,7 +339,7 @@ increase_datetime_resolution <- function(y, resolution_mins) {
 #'
 #' @importFrom dplyr tibble select_if %>%
 #'
-increase_timeseries_resolution <- function(df, resolution_mins, method = c('interpolate', 'repeat')) {
+increase_timeseries_resolution <- function(df, resolution_mins, method = c('interpolate', 'repeat', 'divide')) {
   new_df <- tibble(datetime = increase_datetime_resolution(df$datetime, resolution_mins))
   current_resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
   numeric_df <- df %>% select_if(is.numeric)
@@ -349,7 +354,7 @@ increase_timeseries_resolution <- function(df, resolution_mins, method = c('inte
 #'
 #' @param y original numeric vector
 #' @param n integer, number of intra-values (counting the original value as the first one)
-#' @param method character, being `average` or `first` as valid options
+#' @param method character, being `average`, `first` or `sum` as valid options
 #'
 #' @return numeric vector
 #' @export
@@ -358,10 +363,10 @@ increase_timeseries_resolution <- function(df, resolution_mins, method = c('inte
 #' @importFrom tibble tibble
 #' @importFrom rlang .data
 #'
-decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
+decrease_numeric_resolution <- function(y, n, method = c('average', 'first', 'sum')) {
   if ((length(y)%%n) > 0) {
     message("Error decreasing resolution: the original vector should have a length multiple of `n`.")
-    return(NULL)
+    return( NULL )
   }
 
   if (method == 'average') {
@@ -379,8 +384,19 @@ decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
     return(
       y[seq(1, length(y), n)]
     )
+  } else if (method == 'sum') {
+    return(
+      tibble(
+        idx = rep(seq(1, length(y)/n), each = n),
+        y = y
+      ) %>%
+        group_by(.data$idx) %>%
+        summarise(y = sum(y)) %>%
+        pull(y) %>%
+        as.numeric()
+    )
   } else {
-    message("Error decreasing resolution: method not valid.")
+    message("Error: method not allowed.")
     return( NULL )
   }
 }
@@ -389,7 +405,7 @@ decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
 #'
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param resolution_mins integer, interval of minutes between two consecutive datetime values
-#' @param method character being 'average' or 'first'
+#' @param method character, being `average`, `first` or `sum` as valid options
 #'
 #' @return tibble
 #' @export
@@ -398,7 +414,7 @@ decrease_numeric_resolution <- function(y, n, method = c('average', 'first')) {
 #' @importFrom lubridate floor_date
 #' @importFrom rlang .data
 #'
-decrease_timeseries_resolution <- function(df, resolution_mins, method = c('average', 'first')) {
+decrease_timeseries_resolution <- function(df, resolution_mins, method = c('average', 'first', 'sum')) {
   df2 <- df %>%
     mutate(datetime = floor_date(.data$datetime, paste(resolution_mins, 'minute')))
   if (method == 'average') {
