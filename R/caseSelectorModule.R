@@ -49,7 +49,7 @@ caseSelector <- function(id, df1, df2, plot_func, plot_conf, ...) {
               datetime = df1()[[1]],
               case1 = rowSums(df1()[-1]),
               case2 = rowSums(df2()[-1])
-            ) %>% plot_func(plot_conf())
+            ) %>% plot_func(plot_conf(), ...)
           )
         })
 
