@@ -108,7 +108,7 @@ plot_components <- function(df, plot_conf, ylab, legend_width = NULL, css_file =
       if (is.null(legend_width)) {
         # The legend width is calculated using a relation of 11 pixels = 1 character
         # also including the line symbol and margins applied to dyLegend box
-        min_legend_width <- max(min_legend_width, 11*stringr::str_length(component$variable))
+        min_legend_width <- max(min_legend_width, 11*stringr::str_length(component$label))
       }
     }
   }
