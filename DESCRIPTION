@@ -20,6 +20,7 @@ Imports:
     tidyr,
     purrr,
     rlang,
+    stringr,
     xts,
     dygraphs
 Suggests:
@@ -27,5 +28,4 @@ Suggests:
   shiny,
   shinyWidgets,
   shinydashboard,
-  reticulate,
-  stringr
+  reticulate

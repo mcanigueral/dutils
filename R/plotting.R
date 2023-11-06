@@ -83,6 +83,7 @@ dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, leg
 #' @param df data.frame or tibble, first column of name `datetime` being of class datetime and rest of columns being numeric
 #' @param plot_conf tibble of the plot configuration with columns `variable`, `label`, `color`, `fill` and `width` to pass to dygraph.
 #' @param ylab character, label of y axis
+#' @param legend_width integer, width (in pixels) of the div which shows the legend.
 #' @param css_file character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph.
 #' @param ... extra arguments to pass to `dygraphs::dyOptions` function
 #'
@@ -91,19 +92,32 @@ dyplot <- function(df, title = NULL, xlab = NULL, ylab = NULL, group = NULL, leg
 #'
 #' @importFrom dygraphs dygraph dySeries
 #' @importFrom purrr transpose
+#' @importFrom stringr str_length
 #'
 #' @details
-#' Atention! By default this function applies custom CSS file.
+#' Attention! By default this function applies dutils CSS file.
 #'
-plot_components <- function(df, plot_conf, ylab = "kW", css_file = NULL, ...) {
+plot_components <- function(df, plot_conf, ylab, legend_width = NULL, css_file = NULL, ...) {
   ts <- df_to_ts(df)
   dyplot <- dygraph(ts, group = "a", ylab = ylab)
+  min_legend_width <- 0
   for (component in transpose(plot_conf)) {
     if (component$variable %in% names(df)) {
       dyplot <- dySeries(dyplot, component$variable, component$label, component$color,
                          fillGraph = component$fill, strokeWidth = component$width)
+      if (is.null(legend_width)) {
+        # The legend width is calculated using a relation of 11 pixels = 1 character
+        # also including the line symbol and margins applied to dyLegend box
+        min_legend_width <- max(min_legend_width, 11*stringr::str_length(component$variable))
+      }
     }
   }
-  format_dygraph(dyplot, css_file, ...)
+
+  if (is.null(legend_width)) {
+    legend_width <- min_legend_width
+  }
+
+  format_dygraph(dyplot, css_file, ...) %>%
+    dyLegend(show = "always", width = legend_width)
 }
 

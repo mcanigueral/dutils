@@ -4,7 +4,7 @@
 \alias{plot_components}
 \title{Function to plot components according to a configuration table}
 \usage{
-plot_components(df, plot_conf, ylab = "kW", css_file = NULL, ...)
+plot_components(df, plot_conf, ylab, legend_width = NULL, css_file = NULL, ...)
 }
 \arguments{
 \item{df}{data.frame or tibble, first column of name \code{datetime} being of class datetime and rest of columns being numeric}
@@ -12,6 +12,8 @@ plot_components(df, plot_conf, ylab = "kW", css_file = NULL, ...)
 \item{plot_conf}{tibble of the plot configuration with columns \code{variable}, \code{label}, \code{color}, \code{fill} and \code{width} to pass to dygraph.}
 
 \item{ylab}{character, label of y axis}
+
+\item{legend_width}{integer, width (in pixels) of the div which shows the legend.}
 
 \item{css_file}{character path to a CSS file to format dygraph plot. If NULL, custom CSS is applied to dygraph.}
 
@@ -24,5 +26,5 @@ dygraphs plot
 Function to plot components according to a configuration table
 }
 \details{
-Atention! By default this function applies custom CSS file.
+Attention! By default this function applies dutils CSS file.
 }
