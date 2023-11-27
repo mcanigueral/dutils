@@ -110,7 +110,7 @@ plot_components <- function(df, plot_conf, ylab, legend_width = NULL, css_file =
         # also including the line symbol and margins applied to dyLegend box (+14)
         min_legend_width <- max(
           min_legend_width,
-          9*stringr::str_length(paste(component$label, max(df[[component]])))+14
+          9*stringr::str_length(paste(component$label, max(df[[component$variable]])))+14
         )
       }
     }
