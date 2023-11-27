@@ -117,7 +117,13 @@ plot_components <- function(df, plot_conf, ylab, legend_width = NULL, css_file =
     legend_width <- min_legend_width
   }
 
-  format_dygraph(dyplot, css_file, ...) %>%
-    dyLegend(show = "always", width = legend_width)
+  if ("case1" %in% names(df)) {
+    format_dygraph(dyplot, css_file, fillGraph = T) %>%
+      dyLegend(show = "always", width = legend_width)
+  } else {
+    format_dygraph(dyplot, css_file, ...) %>%
+      dyLegend(show = "always", width = legend_width)
+  }
+
 }
 
