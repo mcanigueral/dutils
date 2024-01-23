@@ -269,6 +269,9 @@ fill_datetime <- function(dttm) {
 #' @importFrom stats lm predict
 #'
 interpolation <- function(y1, y2, n) {
+  if (is.na(y1) | is.na(y2)) {
+    return( c(rep(y1, n), y2) )
+  }
   predict(lm(y ~ x, tibble(x = c(1, (n+1)), y = c(y1, y2))), tibble(x=c(1:n)))
 }
 
