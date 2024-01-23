@@ -270,9 +270,17 @@ fill_datetime <- function(dttm) {
 #'
 interpolation <- function(y1, y2, n) {
   if (is.na(y1) | is.na(y2)) {
-    return( c(rep(y1, n), y2) )
+    return( rep(y1, n) )
   }
-  predict(lm(y ~ x, tibble(x = c(1, (n+1)), y = c(y1, y2))), tibble(x=c(1:n)))
+  as.numeric(
+    predict(
+      lm(
+        y ~ x,
+        tibble(x = c(1, (n+1)), y = c(y1, y2))
+      ),
+      tibble(x=c(1:n))
+    )
+  )
 }
 
 #' Increase numeric vector resolution
