@@ -486,9 +486,10 @@ fill_down_until <- function(data, vars, max_timeslots = 1) {
 #' @return date vector
 #' @export
 #'
-#' @importFrom lubridate as_date year week
+#' @importFrom lubridate as_date year isoweek
+#'
 get_week_from_datetime <- function(dttm) {
-  as_date(paste(year(dttm), week(dttm), 1), format="%Y %W %u")
+  as_date(paste(year(dttm), isoweek(dttm), 1), format="%Y %W %u")
 }
 
 #' Week datetime from datetime value
@@ -512,7 +513,7 @@ get_weektime_from_datetime <- function(dttm) {
 #' @return tibble
 #' @export
 #'
-#' @importFrom dplyr %>% mutate select group_by summarise_if mutate_if
+#' @importFrom dplyr %>% mutate select group_by summarise_if mutate_if arrange
 #' @importFrom rlang .data
 #'
 get_week_total <- function(df) {
@@ -529,7 +530,8 @@ get_week_total <- function(df) {
     summarise_if(
       is.numeric,
       sum
-    )
+    ) %>%
+    arrange(.data$week)
 }
 
 
