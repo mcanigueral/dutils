@@ -180,6 +180,98 @@ adapt_df_timezone <- function(df, tz_out="Europe/Amsterdam") {
 }
 
 
+#' Adapt an yearly time series dataframe to timezone and year
+#'
+#' @param df tibble with first column being `datetime`
+#' @param tz_out character, time zone of the desired `datetime`
+#' @param year_out character, year of the desired `datetime`
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom lubridate year wday with_tz tz year<-
+#' @importFrom dplyr %>% mutate select filter tibble left_join bind_rows arrange
+#' @importFrom rlang .data
+#' @importFrom tidyr drop_na
+#'
+adapt_yearly_timeseries <- function (df, tz_out = NULL, year_out = NULL) {
+  df_tz <- tz(df$datetime)
+  df_year <- unique(year(df$datetime))
+  df_resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
+
+  # Checks
+  if (df_tz != "UTC") {
+    message("Warning: it is adviced to use UTC data sets as input.")
+  }
+  if (is.null(tz_out)) {
+    tz_out <- df_tz
+  }
+  if (length(df_year) > 1) {
+    message("Warning: more than one year in date time sequence of data")
+  }
+  if (is.null(year_out)) {
+    year_out <- df_year
+  }
+
+  if ((tz_out == df_tz) & (year_out == df_year)) {
+    return( df )
+  }
+
+
+  # Adapt year
+  # Which day of the week is the first one in the year_out?
+  datetime_seq_year <- get_datetime_seq(
+    year = year_out, tzone = df_tz,
+    resolution_mins = df_resolution, fullyear = T
+  )
+  year_out_first_wday <- wday(datetime_seq_year, week_start = 1)[1]
+
+  year_in_start_wday_idx <-
+    which(wday(df$datetime, week_start = 1) == year_out_first_wday)[1]
+
+  # Reorder data to match days of the week
+  if (year_in_start_wday_idx > 1) {
+    df_wday <- bind_rows(
+      df[seq(year_in_start_wday_idx, nrow(df)), ],
+      df[seq(1, year_in_start_wday_idx-1), ]
+    )
+  } else {
+    df_wday <- df
+  }
+  df_wday <- df_wday %>%
+    mutate(
+      datetime = get_datetime_seq(
+        year = year_out, tzone = df_tz,
+        resolution_mins = df_resolution, fullyear = T
+      )
+    ) %>%
+    select("datetime", everything())
+
+  # Adapt time zone
+  df_tz_out <- df_wday %>%
+    mutate(
+      datetime = with_tz(.data$datetime, tz_out)
+    )
+  df_tz_out_year_shift <- df_tz_out %>%
+    filter(year(.data$datetime) != year_out)
+  year(df_tz_out_year_shift$datetime) <- year_out
+
+  df_out <- tibble(
+    datetime = get_datetime_seq(
+      year = year_out, tzone = tz_out,
+      resolution_mins = df_resolution, fullyear = T
+    )
+  ) %>%
+    left_join(df_tz_out, by = "datetime") %>%
+    drop_na() %>%
+    bind_rows(df_tz_out_year_shift) %>%
+    arrange(.data$datetime)
+
+  return(df_out)
+}
+
+
+
 # Preprocessing ----------------------------------------------------------
 
 #' Fill from past values
