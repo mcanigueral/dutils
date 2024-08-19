@@ -184,7 +184,7 @@ adapt_df_timezone <- function(df, tz_out="Europe/Amsterdam") {
 #'
 #' @param df tibble with first column being `datetime`
 #' @param tz_out character, time zone of the desired `datetime`
-#' @param year_out character, year of the desired `datetime`
+#' @param year_out integer, year of the desired `datetime`
 #'
 #' @return tibble
 #' @export
@@ -279,7 +279,7 @@ adapt_yearly_timeseries <- function (df, tz_out = NULL, year_out = NULL) {
 #' day in the `df` is a Monday the last one must be a Sunday.
 #'
 #' @param df tibble with first column being `datetime`
-#' @param year_out character, year of the desired `datetime`
+#' @param year_out integer, year of the desired `datetime`
 #'
 #' @return tibble
 #' @export

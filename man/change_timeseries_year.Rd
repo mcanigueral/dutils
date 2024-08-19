@@ -9,7 +9,7 @@ change_timeseries_year(df, year_out)
 \arguments{
 \item{df}{tibble with first column being \code{datetime}}
 
-\item{year_out}{character, year of the desired \code{datetime}}
+\item{year_out}{integer, year of the desired \code{datetime}}
 }
 \value{
 tibble

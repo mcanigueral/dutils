@@ -11,7 +11,7 @@ adapt_yearly_timeseries(df, tz_out = NULL, year_out = NULL)
 
 \item{tz_out}{character, time zone of the desired \code{datetime}}
 
-\item{year_out}{character, year of the desired \code{datetime}}
+\item{year_out}{integer, year of the desired \code{datetime}}
 }
 \value{
 tibble
