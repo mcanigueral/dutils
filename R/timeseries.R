@@ -28,7 +28,7 @@ date_to_timestamp <- function(date, tzone = "Europe/Paris", milliseconds = T) {
 
 #' Split the period between start and end dates with a defined interval of days
 #'
-#' The dates are converted to timestamp with function `date_to_timestamp`,
+#' Used for DynamoDB. The dates are converted to timestamp with function `date_to_timestamp`,
 #' but the inputs `start_date` and `end_date` must be of class `Date` and not `datetime`.
 #'
 #' @param start_date Date, start date.
@@ -38,7 +38,7 @@ date_to_timestamp <- function(date, tzone = "Europe/Paris", milliseconds = T) {
 #' @param milliseconds logical, whether the timestamp variable is in milliseconds or not
 #'
 #' @return tibble
-#' @export
+#' @keywords internal
 #'
 #' @importFrom dplyr tibble select %>%
 #' @importFrom rlang .data
@@ -270,6 +270,62 @@ adapt_yearly_timeseries <- function (df, tz_out = NULL, year_out = NULL) {
   return(df_out)
 }
 
+
+
+#' Change the year of a time series data frame keeping the original weekdays
+#'
+#' The input `df` must contain full-week time-series profiles in order to
+#' arrange the data according to the day of the week. For example, if the first
+#' day in the `df` is a Monday the last one must be a Sunday.
+#'
+#' @param df tibble with first column being `datetime`
+#' @param year_out character, year of the desired `datetime`
+#'
+#' @return tibble
+#' @export
+#'
+#' @importFrom lubridate year wday tz year<-
+#' @importFrom dplyr %>% mutate select bind_rows everything
+#'
+change_timeseries_year <- function(df, year_out) {
+  df_year <- unique(year(df$datetime))
+  df_tz <- tz(df$datetime)
+  df_resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
+
+  # Checks
+  if (length(df_year) > 1) {
+    message("Error: more than one year in date time sequence of data")
+    return( NULL )
+  }
+  if (year_out == df_year) {
+    return( df )
+  }
+
+  # Which day of the week is the first one in the year_out?
+  datetime_seq_out <- df$datetime
+  year(datetime_seq_out) <- year_out
+  year_out_first_wday <- wday(datetime_seq_out[1], week_start = 1)
+
+  year_in_start_wday_idx <-
+    which(wday(df$datetime, week_start = 1) == year_out_first_wday)[1]
+
+  # Reorder data to match days of the week
+  if (year_in_start_wday_idx > 1) {
+    df_wday <- bind_rows(
+      df[seq(year_in_start_wday_idx, nrow(df)), ],
+      df[seq(1, year_in_start_wday_idx-1), ]
+    )
+  } else {
+    df_wday <- df
+  }
+  df_wday <- df_wday %>%
+    mutate(
+      datetime = datetime_seq_out
+    ) %>%
+    select("datetime", everything())
+
+  return( df_wday )
+}
 
 
 # Preprocessing ----------------------------------------------------------

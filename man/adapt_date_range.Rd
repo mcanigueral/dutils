@@ -27,6 +27,7 @@ adapt_date_range(
 tibble
 }
 \description{
-The dates are converted to timestamp with function \code{date_to_timestamp},
+Used for DynamoDB. The dates are converted to timestamp with function \code{date_to_timestamp},
 but the inputs \code{start_date} and \code{end_date} must be of class \code{Date} and not \code{datetime}.
 }
+\keyword{internal}
