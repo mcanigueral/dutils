@@ -122,19 +122,6 @@ date_to_datetime_with_tz <- function(date, tzone="UTC") {
 }
 
 
-#' Return the time resolution of a datetime sequence
-#'
-#' @param dttm_seq datetime sequence
-#' @param units character being one of "auto", "secs", "mins", "hours", "days" and "weeks"
-#'
-#' @return numeric
-#' @export
-#'
-get_time_resolution <- function(dttm_seq, units = 'mins') {
-  difftime(dttm_seq[2], dttm_seq[1], units = units)[[1]]
-}
-
-
 #' Adapt the timezone of a time series dataframe
 #'
 #' @param df tibble with first column being `datetime`
@@ -423,7 +410,7 @@ get_weektime_from_datetime <- function(dttm) {
 #' @importFrom rlang .data
 #'
 get_week_total <- function(df) {
-  resolution <- get_time_resolution(df$datetime, units = "mins")
+  resolution <- difftime(df$datetime[2], df$datetime[1], units = units)[[1]]
   df %>%
     mutate_if(
       is.numeric,
