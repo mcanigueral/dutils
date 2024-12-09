@@ -410,7 +410,7 @@ get_weektime_from_datetime <- function(dttm) {
 #' @importFrom rlang .data
 #'
 get_week_total <- function(df) {
-  resolution <- difftime(df$datetime[2], df$datetime[1], units = units)[[1]]
+  resolution <- as.numeric(df$datetime[2] - df$datetime[1], units = "mins")
   df %>%
     mutate_if(
       is.numeric,
