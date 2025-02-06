@@ -19,8 +19,6 @@ Imports:
     tidyr,
     purrr,
     rlang,
-    stringr,
-    xts,
     dygraphs
 Suggests:
   httr,
