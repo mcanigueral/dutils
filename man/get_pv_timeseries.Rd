@@ -8,7 +8,7 @@ get_pv_timeseries(
   year = 2021,
   lat = 52.37,
   lon = 4.908,
-  database = "PVGIS-SARAH",
+  database = "PVGIS-SARAH3",
   kWp = 1,
   loss = 14,
   tilt = 37,
