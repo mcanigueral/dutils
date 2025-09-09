@@ -16,7 +16,7 @@
 #'
 get_tmy <- function(lat=52.370, lon=4.908) {
   url <- paste0(
-    "https://re.jrc.ec.europa.eu/api/tmy?",
+    "https://re.jrc.ec.europa.eu/api/v5_3/tmy?",
     "lat=", lat, "&", "lon=", lon, "&",
     "outputformat=json"
   )
