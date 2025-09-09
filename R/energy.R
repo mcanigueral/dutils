@@ -49,7 +49,7 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 #' @importFrom rlang .data
 #' @importFrom purrr pmap_dfr
 #'
-get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH", kWp=1, loss=14, tilt=37, azimuth=0) {
+get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH3", kWp=1, loss=14, tilt=37, azimuth=0) {
   message(paste('Getting PV data with: tilt =', tilt, ', azimuth =', azimuth))
   url <- paste0(
     "https://re.jrc.ec.europa.eu/api/v5_3/seriescalc?",
@@ -72,7 +72,7 @@ get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGI
       datetime = as_datetime(.data$time, format = "%Y%m%d:%H%M", tz = "UTC") - minutes(11),
       kW = .data$P/1000
     ) %>%
-    select(.data$datetime, .data$kW)
+    select("datetime", "kW")
 
   tmy <- get_tmy(lat, lon)
 
