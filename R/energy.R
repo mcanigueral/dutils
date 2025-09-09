@@ -30,7 +30,7 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 #' Get PV generation from PVGIS given the latitude and longitude coordinates and PV installation characteristics.
 #'
 #' For more information visit https://ec.europa.eu/jrc/en/pvgis.
-#' For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive
+#' For parameters meaning visit https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/api-non-interactive-service_en
 #'
 #' @param year integer, year for the returned time-series data frame
 #' @param lat numeric, latitude coordinate
@@ -52,7 +52,7 @@ get_tmy <- function(lat=52.370, lon=4.908) {
 get_pv_timeseries <- function(year=2021, lat=52.370, lon=4.908, database = "PVGIS-SARAH", kWp=1, loss=14, tilt=37, azimuth=0) {
   message(paste('Getting PV data with: tilt =', tilt, ', azimuth =', azimuth))
   url <- paste0(
-    "https://re.jrc.ec.europa.eu/api/seriescalc?",
+    "https://re.jrc.ec.europa.eu/api/v5_3/seriescalc?",
     "lat=", lat, "&",
     "lon=", lon, "&",
     "raddatabase=", database, "&",

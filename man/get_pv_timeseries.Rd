@@ -37,5 +37,5 @@ tibble
 }
 \description{
 For more information visit https://ec.europa.eu/jrc/en/pvgis.
-For parameters meaning visit https://ec.europa.eu/jrc/en/PVGIS/docs/noninteractive
+For parameters meaning visit https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis/getting-started-pvgis/api-non-interactive-service_en
 }
